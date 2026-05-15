@@ -37,13 +37,14 @@ public sealed partial class MainMenuControl : Control
         Logo.Texture = logoTexture;
 */
 
+/*  // Arcane-Edit: Removed
         // Orion-Start
         var borderUpTexture = resCache.GetResource<TextureResource>("/Textures/Logo/space-station-14.png");
         BorderUp.Texture = borderUpTexture;
 
-        var borderDownTexture = resCache.GetResource<TextureResource>("/Textures/Logo/logo.png");
+        var borderDownTexture = resCache.GetResource<TextureResource>("/Textures/Logo/logo.png"); 
         BorderDown.Texture = borderDownTexture;
-        // Orion-End
+ */       // Orion-End
 
         var currentUserName = configMan.GetCVar(CVars.PlayerName);
         UsernameBox.Text = currentUserName;
