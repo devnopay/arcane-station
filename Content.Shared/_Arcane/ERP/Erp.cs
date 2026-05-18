@@ -7,14 +7,8 @@ public enum ErpPreference : byte
     No,
 }
 
-public sealed class ErpPreferenceChangedEvent : EntityEventArgs
+public sealed class ErpPreferenceChangedEvent(ErpPreference oldPreference, ErpPreference newPreference) : EntityEventArgs
 {
-    public ErpPreference OldPreference;
-    public ErpPreference NewPreference;
-
-    public ErpPreferenceChangedEvent(ErpPreference oldPref, ErpPreference newPref)
-    {
-        OldPreference = oldPref;
-        NewPreference = newPref;
-    }
+    public ErpPreference OldPreference = oldPreference;
+    public ErpPreference NewPreference = newPreference;
 }

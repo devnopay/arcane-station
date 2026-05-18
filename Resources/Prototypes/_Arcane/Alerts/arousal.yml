@@ -1,7 +1,6 @@
 - type: alertCategory
   id: Arousal
 
-# Shown at ArousalPhase.Aroused (40+)
 - type: alert
   id: ArousalAroused
   category: Arousal
@@ -11,7 +10,6 @@
   name: alerts-arousal-aroused-name
   description: alerts-arousal-aroused-desc
 
-# Shown at ArousalPhase.Heated (70+)
 - type: alert
   id: ArousalHeated
   category: Arousal

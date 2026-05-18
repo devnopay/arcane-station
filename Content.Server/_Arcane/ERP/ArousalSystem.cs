@@ -23,18 +23,18 @@ public sealed class ArousalSystem : EntitySystem
         SubscribeLocalEvent<ArousalComponent, ErpPreferenceChangedEvent>(OnErpPreferenceChanged);
     }
 
-    private void OnInit(EntityUid uid, ArousalComponent comp, ComponentInit args)
+    private void OnInit(Entity<ArousalComponent> ent, ref ComponentInit args)
     {
-        SetArousal((uid, comp), 0f);
+        SetArousal(ent, 0f);
     }
 
-    private void OnErpPreferenceChanged(EntityUid uid, ArousalComponent comp, ErpPreferenceChangedEvent args)
+    private void OnErpPreferenceChanged(Entity<ArousalComponent> ent, ref ErpPreferenceChangedEvent args)
     {
         if (args.NewPreference != ErpPreference.No)
             return;
 
-        comp.PassiveSources.Clear();
-        SetArousal((uid, comp), 0f);
+        ent.Comp.PassiveSources.Clear();
+        SetArousal(ent, 0f);
     }
 
     /// <summary>
@@ -156,7 +156,8 @@ public sealed class ArousalSystem : EntitySystem
 
             UpdateAlerts(entity.Owner, ArousalPhase.Calm);
             RaiseLocalEvent(entity.Owner, new ArousalPhaseChangedEvent(previous, ArousalPhase.Peak));
-            RaiseLocalEvent(entity.Owner, new ArousalOrgasmEvent());
+            var orgasmEv = new ArousalOrgasmEvent();
+            RaiseLocalEvent(entity.Owner, ref orgasmEv);
             RaiseLocalEvent(entity.Owner, new ArousalPhaseChangedEvent(ArousalPhase.Peak, ArousalPhase.Calm));
         }
         else
@@ -189,22 +190,3 @@ public sealed class ArousalSystem : EntitySystem
                && status.Preference == ErpPreference.No;
     }
 }
-
-public sealed class ArousedEvent(float amount) : EntityEventArgs
-{
-    public float Amount = amount;
-}
-
-public sealed class ArousalPhaseChangedEvent : EntityEventArgs
-{
-    public ArousalPhase Previous;
-    public ArousalPhase Current;
-
-    public ArousalPhaseChangedEvent(ArousalPhase previous, ArousalPhase current)
-    {
-        Previous = previous;
-        Current = current;
-    }
-}
-
-public sealed class ArousalOrgasmEvent : EntityEventArgs { }

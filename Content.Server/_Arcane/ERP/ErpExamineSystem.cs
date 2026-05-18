@@ -15,15 +15,16 @@ public sealed class ErpExamineSystem : EntitySystem
         SubscribeLocalEvent<ErpStatusComponent, GetVerbsEvent<ExamineVerb>>(OnGetExamineVerbs);
     }
 
-    private void OnGetExamineVerbs(EntityUid uid, ErpStatusComponent comp, GetVerbsEvent<ExamineVerb> args)
+    private void OnGetExamineVerbs(Entity<ErpStatusComponent> ent, ref GetVerbsEvent<ExamineVerb> args)
     {
-        var inRange = _examine.IsInDetailsRange(args.User, uid);
+        var user = args.User;
+        var inRange = _examine.IsInDetailsRange(user, ent);
 
         var verb = new ExamineVerb
         {
             Act = () =>
             {
-                var statusKey = comp.Preference switch
+                var statusKey = ent.Comp.Preference switch
                 {
                     ErpPreference.Yes => "erp-examine-status-yes",
                     ErpPreference.Ask => "erp-examine-status-ask",
@@ -35,7 +36,7 @@ public sealed class ErpExamineSystem : EntitySystem
                 msg.PushNewline();
                 msg.AddMarkupOrThrow(Loc.GetString(statusKey));
 
-                _examine.SendExamineTooltip(args.User, uid, msg, false, false);
+                _examine.SendExamineTooltip(user, ent, msg, false, false);
             },
             Text = Loc.GetString("erp-examine-verb-text"),
             Category = VerbCategory.Examine,

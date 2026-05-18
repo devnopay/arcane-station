@@ -16,19 +16,19 @@ public sealed class ErpStatusSystem : EntitySystem
         SubscribeLocalEvent<HumanoidAppearanceComponent, PlayerAttachedEvent>(OnPlayerAttached);
     }
 
-    private void OnPlayerAttached(EntityUid uid, HumanoidAppearanceComponent humanoid, ref PlayerAttachedEvent args)
+    private void OnPlayerAttached(Entity<HumanoidAppearanceComponent> ent, ref PlayerAttachedEvent args)
     {
         var profile = _prefs.GetPreferences(args.Player.UserId).SelectedCharacter as HumanoidCharacterProfile;
         var preference = profile?.ErpPreference ?? ErpPreference.Ask;
 
-        EnsureComp<ArousalComponent>(uid);
+        EnsureComp<ArousalComponent>(ent);
 
-        var comp = EnsureComp<ErpStatusComponent>(uid);
+        var comp = EnsureComp<ErpStatusComponent>(ent);
         var oldPreference = comp.Preference;
         comp.Preference = preference;
-        Dirty(uid, comp);
+        Dirty(ent, comp);
 
         if (oldPreference != preference)
-            RaiseLocalEvent(uid, new ErpPreferenceChangedEvent(oldPreference, preference));
+            RaiseLocalEvent(ent, new ErpPreferenceChangedEvent(oldPreference, preference));
     }
 }

@@ -35,7 +35,6 @@ humanoid-profile-editor-sex-label = Sex:
 humanoid-profile-editor-sex-male-text = Male
 humanoid-profile-editor-sex-female-text = Female
 humanoid-profile-editor-sex-unsexed-text = None
-humanoid-profile-editor-sex-futanari-text = Futanari
 humanoid-profile-editor-age-label = Age:
 humanoid-profile-editor-skin-color-label = Skin color:
 humanoid-profile-editor-species-label = Species:

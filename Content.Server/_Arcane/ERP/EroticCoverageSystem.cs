@@ -1,3 +1,4 @@
+using Content.Shared._Arcane.ERP;
 using Content.Shared._Arcane.ERP.Organs;
 using Content.Shared.Body.Part;
 using Content.Shared.Body.Systems;
@@ -26,19 +27,19 @@ public sealed class EroticCoverageSystem : EntitySystem
         SubscribeLocalEvent<HumanoidAppearanceComponent, ClothingDidUnequippedEvent>(OnUnequipped);
     }
 
-    private void OnOrgansSpawned(EntityUid uid, HumanoidAppearanceComponent _, EroticOrgansSpawnedEvent args)
+    private void OnOrgansSpawned(Entity<HumanoidAppearanceComponent> ent, ref EroticOrgansSpawnedEvent args)
     {
-        RefreshOrganVisibility(uid);
+        RefreshOrganVisibility(ent);
     }
 
-    private void OnEquipped(EntityUid uid, HumanoidAppearanceComponent _, ref ClothingDidEquippedEvent args)
+    private void OnEquipped(Entity<HumanoidAppearanceComponent> ent, ref ClothingDidEquippedEvent args)
     {
-        RefreshOrganVisibility(uid);
+        RefreshOrganVisibility(ent);
     }
 
-    private void OnUnequipped(EntityUid uid, HumanoidAppearanceComponent _, ref ClothingDidUnequippedEvent args)
+    private void OnUnequipped(Entity<HumanoidAppearanceComponent> ent, ref ClothingDidUnequippedEvent args)
     {
-        RefreshOrganVisibility(uid);
+        RefreshOrganVisibility(ent);
     }
 
     private void RefreshOrganVisibility(EntityUid uid)
