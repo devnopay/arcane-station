@@ -96,9 +96,8 @@ public sealed class ArousalSystem : EntitySystem
         var before = GetArousal(comp);
         var target = Math.Clamp(before + amount, 0f, comp.MaxArousal);
         SetArousal((uid, comp), target);
-        var actual = target - before;
-        if (actual > 0f)
-            RaiseLocalEvent(uid, new ArousedEvent(actual));
+        if (target > before)
+            RaiseLocalEvent(uid, new ArousedEvent(before, target));
     }
 
     public void ReduceArousal(EntityUid uid, float amount, ArousalComponent? comp = null)
