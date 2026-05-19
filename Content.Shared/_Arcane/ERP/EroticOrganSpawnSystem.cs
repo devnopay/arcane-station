@@ -5,6 +5,7 @@ using Content.Shared.Body.Part;
 using Content.Shared.Body.Systems;
 using Content.Shared.Humanoid;
 using Robust.Shared.Containers;
+using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
 
 namespace Content.Shared._Arcane.ERP;
@@ -14,6 +15,7 @@ public sealed class EroticOrganSpawnSystem : EntitySystem
     [Dependency] private readonly SharedBodySystem _body = default!;
     [Dependency] private readonly IPrototypeManager _proto = default!;
     [Dependency] private readonly SharedContainerSystem _containers = default!;
+    [Dependency] private readonly INetManager _net = default!;
 
     public override void Initialize()
     {
@@ -26,6 +28,9 @@ public sealed class EroticOrganSpawnSystem : EntitySystem
 
     private void OnMapInit(Entity<EroticOrgansComponent> ent, ref MapInitEvent args)
     {
+        if (!_net.IsServer)
+            return;
+
         if (!TryComp<HumanoidAppearanceComponent>(ent, out var humanoid))
             return;
 
@@ -34,6 +39,9 @@ public sealed class EroticOrganSpawnSystem : EntitySystem
 
     private void OnProfileLoaded(Entity<EroticOrgansComponent> ent, ref ProfileLoadFinishedEvent args)
     {
+        if (!_net.IsServer)
+            return;
+
         if (!TryComp<HumanoidAppearanceComponent>(ent, out var humanoid))
             return;
 
@@ -43,6 +51,9 @@ public sealed class EroticOrganSpawnSystem : EntitySystem
 
     private void OnSexChanged(Entity<EroticOrgansComponent> ent, ref SexChangedEvent args)
     {
+        if (!_net.IsServer)
+            return;
+
         RemoveEroticOrgans(ent);
         SpawnEroticOrgans(ent, ent.Comp, args.NewSex);
     }
