@@ -8,8 +8,7 @@
   "copyright": "Taken from SPLURT-Station-13",
   "states": [
     {
-      "name": "default",
-      "directions": 1
+      "name": "default"
     }
   ]
 }

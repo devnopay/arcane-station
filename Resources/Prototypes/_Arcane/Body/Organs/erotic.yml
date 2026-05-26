@@ -8,6 +8,23 @@
     removable: false
 
 # Universal (all sexes)
+# External — shows in health scanner.
+- type: entity
+  id: OrganButt
+  parent: BaseEroticOrgan
+  name: butt
+  description: A pair of buttocks.
+  components:
+  - type: Sprite
+    sprite: _Arcane/Mobs/Organs/anus.rsi
+    state: default
+  - type: Organ
+    slotId: butt
+    removable: false
+  - type: EroticOrgan
+    sensitivity: 0.9
+  - type: ButtOrgan
+
 # Internal muscle — no integrity display in health scanner.
 - type: entity
   id: OrganAnus
@@ -16,7 +33,7 @@
   description: An internal sphincter muscle.
   components:
   - type: Sprite
-    sprite: _Arcane/Mobs/organs/anus.rsi
+    sprite: _Arcane/Mobs/Organs/anus.rsi
     state: default
   - type: Organ
     slotId: anus
@@ -34,7 +51,7 @@
   description: A male genital organ.
   components:
   - type: Sprite
-    sprite: _Arcane/Mobs/organs/penis.rsi
+    sprite: _Arcane/Mobs/Organs/penis.rsi
     state: default
   - type: Organ
     intCap: 15
@@ -57,7 +74,7 @@
   description: Male gonads.
   components:
   - type: Sprite
-    sprite: _Arcane/Mobs/organs/testicles.rsi
+    sprite: _Arcane/Mobs/Organs/testicles.rsi
     state: default
   - type: Organ
     slotId: testicles
@@ -75,7 +92,7 @@
   description: A female genital organ.
   components:
   - type: Sprite
-    sprite: _Arcane/Mobs/organs/vagina.rsi
+    sprite: _Arcane/Mobs/Organs/vagina.rsi
     state: default
   - type: Organ
     slotId: vagina
@@ -92,7 +109,7 @@
   description: A female reproductive organ.
   components:
   - type: Sprite
-    sprite: _Arcane/Mobs/organs/uterus.rsi
+    sprite: _Arcane/Mobs/Organs/uterus.rsi
     state: default
   - type: Organ
     slotId: uterus
@@ -109,7 +126,7 @@
   description: Mammary glands.
   components:
   - type: Sprite
-    sprite: _Arcane/Mobs/organs/breasts.rsi
+    sprite: _Arcane/Mobs/Organs/breasts.rsi
     state: default
   - type: Organ
     intCap: 15

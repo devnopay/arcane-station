@@ -5,6 +5,9 @@
 [RegisterComponent]
 public sealed partial class AnusOrganComponent : Component;
 
+[RegisterComponent]
+public sealed partial class ButtOrganComponent : Component;
+
 // Male + Futanari
 [RegisterComponent]
 public sealed partial class PenisOrganComponent : Component;

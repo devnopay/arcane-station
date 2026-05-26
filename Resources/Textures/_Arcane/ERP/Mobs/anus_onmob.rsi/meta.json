@@ -1,9 +1,10 @@
-{
+﻿{
   "version": 1,
   "license": "TODO",
-  "copyright": "Ported from S.P.L.U.R.T-Station-13",
+  "copyright": "",
   "size": { "x": 32, "y": 32 },
   "states": [
-    { "name": "anus_human_3_0", "directions": 1 }
+    { "name": "anus_donut_3_0_FRONT",    "directions": 4 },
+    { "name": "anus_squished_3_0_FRONT", "directions": 4 }
   ]
 }

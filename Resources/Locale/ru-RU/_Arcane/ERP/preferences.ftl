@@ -1,32 +1,43 @@
 erp-organ-section-title = ERP Органы
-erp-preferences-tab-status-label = ЕРП статус
-erp-preferences-tab-organs-header = Органы
+erp-organ-size-label = Размер:
+erp-organ-skin-color-label = Цвет кожи
+
 erp-preferences-tab-organ-penis = Пенис
 erp-preferences-tab-organ-vagina = Вагина
 erp-preferences-tab-organ-breasts = Грудь
 erp-preferences-tab-organ-testicles = Яички
 erp-preferences-tab-organ-anus = Анус
+erp-preferences-tab-organ-butt = Задница
 
+# Варианты пениса
 erp-preferences-tab-variant-human = Человеческий
 erp-preferences-tab-variant-knotted = Узловатый
-erp-preferences-tab-variant-equine = Лошадиный
-erp-preferences-tab-variant-canine = Собачий
 erp-preferences-tab-variant-barbknot = Барб
-erp-preferences-tab-variant-tapered = Заострённый
-erp-preferences-tab-variant-gaping = Растянутый
+erp-preferences-tab-variant-flared = Расширенный
 erp-preferences-tab-variant-tentacle = Щупальце
+erp-preferences-tab-variant-hemi = Полу-
+erp-preferences-tab-variant-hemiknot = Полу-узловатый
+erp-preferences-tab-variant-tapered = Заострённый
+erp-preferences-tab-variant-thick = Толстый
+
+# Варианты вагины
+erp-preferences-tab-variant-gaping = Растянутая
 erp-preferences-tab-variant-dentata = С зубами
-erp-preferences-tab-variant-hairy = Волосатый
-erp-preferences-tab-variant-furred = Покрытый мехом
-erp-preferences-tab-variant-pair_a = Размер A
-erp-preferences-tab-variant-pair_b = Размер B
-erp-preferences-tab-variant-pair_c = Размер C
-erp-preferences-tab-variant-pair_d = Размер D
-erp-preferences-tab-variant-pair_e = Размер E
-erp-preferences-tab-variant-pair_f = Размер F
-erp-preferences-tab-variant-pair_g = Размер G
-erp-preferences-tab-variant-pair_h = Размер H
-erp-preferences-tab-variant-single = Одиночные
+erp-preferences-tab-variant-hairy = Волосатая
+erp-preferences-tab-variant-furred = Покрытая мехом
+erp-preferences-tab-variant-spade = Лопатовидная
+erp-preferences-tab-variant-cloaca = Клоака
+
+# Варианты груди
+erp-preferences-tab-variant-pair = Пара
+erp-preferences-tab-variant-quad = Четыре
+erp-preferences-tab-variant-sextuple = Шесть
+
+# Варианты яичек
+erp-preferences-tab-variant-single = Обычные
+erp-preferences-tab-variant-sheath = В оболочке
 erp-preferences-tab-variant-hidden = Скрытые
+
+# Варианты ануса
 erp-preferences-tab-variant-donut = Пончик
 erp-preferences-tab-variant-squished = Сплющенный

@@ -5,6 +5,7 @@ using Content.Shared._Arcane.ERP.OrgansAppearance;
 using Content.Shared._Arcane.ERP.Preferences;
 using Content.Shared._Shitmed.Humanoid.Events;
 using Content.Shared.Humanoid;
+using System.Numerics;
 using Robust.Client.GameObjects;
 using Robust.Shared.Maths;
 using Robust.Shared.Utility;
@@ -24,6 +25,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         Breasts,
         Testicles,
         Anus,
+        Butt,
     }
 
     private static readonly Dictionary<string, OrganLayer> SlotToLayer = new()
@@ -33,29 +35,43 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         [ErpOrganSlots.Breasts]   = OrganLayer.Breasts,
         [ErpOrganSlots.Testicles] = OrganLayer.Testicles,
         [ErpOrganSlots.Anus]      = OrganLayer.Anus,
+        [ErpOrganSlots.Butt]      = OrganLayer.Butt,
+    };
+
+    private static readonly Dictionary<string, Sex[]> SlotSexFilter = new()
+    {
+        [ErpOrganSlots.Penis]     = [Sex.Male, Sex.Futanari],
+        [ErpOrganSlots.Testicles] = [Sex.Male, Sex.Futanari],
+        [ErpOrganSlots.Vagina]    = [Sex.Female, Sex.Futanari],
+        [ErpOrganSlots.Breasts]   = [Sex.Female, Sex.Futanari],
     };
 
     private static readonly Dictionary<string, HumanoidVisualLayers> OrganCoverageLayer = new()
     {
-        [ErpOrganSlots.Penis]     = HumanoidVisualLayers.ErpGroin,
-        [ErpOrganSlots.Vagina]    = HumanoidVisualLayers.ErpGroin,
-        [ErpOrganSlots.Testicles] = HumanoidVisualLayers.ErpGroin,
-        [ErpOrganSlots.Anus]      = HumanoidVisualLayers.ErpGroin,
-        [ErpOrganSlots.Breasts]   = HumanoidVisualLayers.ErpChest,
+        [ErpOrganSlots.Penis]     = HumanoidVisualLayers.Groin,
+        [ErpOrganSlots.Vagina]    = HumanoidVisualLayers.Groin,
+        [ErpOrganSlots.Testicles] = HumanoidVisualLayers.Groin,
+        [ErpOrganSlots.Anus]      = HumanoidVisualLayers.Groin,
+        [ErpOrganSlots.Butt]      = HumanoidVisualLayers.Groin,
+        [ErpOrganSlots.Breasts]   = HumanoidVisualLayers.Chest,
     };
 
     private static readonly Dictionary<string, string> OrganRsiPath = new()
     {
-        [ErpOrganSlots.Penis]     = "/Textures/_Arcane/ERP/Mobs/penis_onmob.rsi",
-        [ErpOrganSlots.Vagina]    = "/Textures/_Arcane/ERP/Mobs/vagina_onmob.rsi",
-        [ErpOrganSlots.Breasts]   = "/Textures/_Arcane/ERP/Mobs/breasts_onmob.rsi",
+        [ErpOrganSlots.Penis] = "/Textures/_Arcane/ERP/Mobs/penis_onmob.rsi",
+        [ErpOrganSlots.Vagina] = "/Textures/_Arcane/ERP/Mobs/vagina_onmob.rsi",
+        [ErpOrganSlots.Breasts] = "/Textures/_Arcane/ERP/Mobs/breasts_onmob.rsi",
         [ErpOrganSlots.Testicles] = "/Textures/_Arcane/ERP/Mobs/testicles_onmob.rsi",
-        [ErpOrganSlots.Anus]      = "/Textures/_Arcane/ERP/Mobs/anus_onmob.rsi",
+        [ErpOrganSlots.Butt] = "/Textures/_Arcane/ERP/Mobs/butt_onmob.rsi",
+        [ErpOrganSlots.Anus] = "/Textures/_Arcane/ERP/Mobs/anus_onmob.rsi",
     };
+
+    private ISawmill _log = default!;
 
     public override void Initialize()
     {
         base.Initialize();
+        _log = Logger.GetSawmill("erp.visuals.cl");
 
         SubscribeLocalEvent<ErpOrganVisualsComponent, AfterAutoHandleStateEvent>(OnOrganState);
         SubscribeLocalEvent<ErpOrganVisualsComponent, ComponentShutdown>(OnOrganShutdown);
@@ -75,10 +91,11 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         if (!TryComp<SpriteComponent>(uid, out var sprite))
             return;
 
+        var humanoid = CompOrNull<HumanoidAppearanceComponent>(uid);
         var visuals = EnsureComp<ErpOrganVisualsComponent>(uid);
-        visuals.Organs = new Dictionary<string, ErpOrganConfig>(prefs.Organs);
+        visuals.Organs = FilterOrgansBySex(prefs.Organs, humanoid?.Sex ?? Sex.Male);
 
-        ApplyOrganLayers((uid, visuals), CompOrNull<HumanoidAppearanceComponent>(uid), sprite);
+        ApplyOrganLayers((uid, visuals), humanoid, sprite);
     }
 
     private void OnPreviewProfileLoaded(Entity<HumanoidAppearanceComponent> ent, ref ProfileLoadFinishedEvent args)
@@ -93,16 +110,33 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         var organPrefs = _erpPrefs.GetSlot(slot);
 
         var visuals = EnsureComp<ErpOrganVisualsComponent>(ent);
-        visuals.Organs = new Dictionary<string, ErpOrganConfig>(organPrefs.Organs);
+        visuals.Organs = FilterOrgansBySex(organPrefs.Organs, ent.Comp.Sex);
 
         if (TryComp<SpriteComponent>(ent, out var sprite))
             ApplyOrganLayers((ent, visuals), ent.Comp, sprite);
     }
 
+    private static Dictionary<string, ErpOrganConfig> FilterOrgansBySex(
+        Dictionary<string, ErpOrganConfig> organs, Sex sex)
+    {
+        var result = new Dictionary<string, ErpOrganConfig>();
+        foreach (var (slotId, cfg) in organs)
+        {
+            if (SlotSexFilter.TryGetValue(slotId, out var allowed) && Array.IndexOf(allowed, sex) < 0)
+                continue;
+            result[slotId] = cfg;
+        }
+        return result;
+    }
+
     private void OnOrganState(Entity<ErpOrganVisualsComponent> ent, ref AfterAutoHandleStateEvent args)
     {
+        _log.Debug($"OnOrganState {ent}, organs={ent.Comp.Organs.Count}");
         if (!TryComp<SpriteComponent>(ent, out var sprite))
+        {
+            _log.Debug($"{ent} — no SpriteComponent");
             return;
+        }
 
         ApplyOrganLayers(ent, CompOrNull<HumanoidAppearanceComponent>(ent), sprite);
     }
@@ -145,13 +179,25 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
             if (!OrganRsiPath.TryGetValue(slotId, out var rsiPath))
                 continue;
 
-            ent.Comp.Organs.TryGetValue(slotId, out var cfg);
-            cfg ??= ErpOrganConfig.Default();
+            if (!ent.Comp.Organs.TryGetValue(slotId, out var cfg))
+            {
+                // Organ not present on this character — hide layer if it was added previously
+                if (_sprite.LayerMapTryGet((ent, sprite), layerKey, out var hiddenIdx, false))
+                    _sprite.LayerSetVisible((ent, sprite), hiddenIdx, false);
+                continue;
+            }
 
-            var index = _sprite.LayerMapReserve((ent, sprite), layerKey);
-            _sprite.LayerSetRsi((ent, sprite), index, new ResPath(rsiPath), BuildStateName(slotId, cfg));
-            _sprite.LayerSetColor((ent, sprite), index, cfg.Color ?? humanoid?.SkinColor ?? Color.White);
-            _sprite.LayerSetVisible((ent, sprite), index, IsOrganVisible(slotId, humanoid));
+            var stateName = BuildStateName(slotId, cfg);
+            var visible = IsOrganVisible(slotId, humanoid);
+            _log.Debug($"layer {slotId} state={stateName} visible={visible}");
+
+            if (!_sprite.LayerMapTryGet((ent, sprite), layerKey, out var index, false))
+                index = _sprite.LayerMapReserve((ent, sprite), layerKey);
+
+            _sprite.LayerSetRsi((ent, sprite), index, new ResPath(rsiPath), stateName);
+            _sprite.LayerSetColor((ent, sprite), index, cfg.Color ?? humanoid?.SkinColor ?? Color.FromHex("#C0967F"));
+            _sprite.LayerSetScale((ent, sprite), index, BuildOrganScale(slotId, cfg));
+            _sprite.LayerSetVisible((ent, sprite), index, visible);
         }
     }
 
@@ -169,9 +215,44 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
 
     private static string BuildStateName(string slotId, ErpOrganConfig cfg)
     {
-        if (slotId == ErpOrganSlots.Breasts)
-            return $"breasts_{cfg.Variant}_0";
+        switch (slotId)
+        {
+            case ErpOrganSlots.Breasts:
+                var bVariant = cfg.Variant is "human" or "pair" or "" ? "pair" : cfg.Variant;
+                var szLetter = cfg.Size >= 1 && cfg.Size <= 8
+                    ? ((char) ('a' + cfg.Size - 1)).ToString()
+                    : "a";
+                return $"breasts_{bVariant}_{szLetter}_0_FRONT";
+            case ErpOrganSlots.Butt:
+                return $"butt_pair_{Math.Clamp(cfg.Size, 1, 5)}_0_FRONT";
+            case ErpOrganSlots.Testicles:
+                return "testicles_single_2_0_FRONT";
+            case ErpOrganSlots.Anus:
+                var aVariant = cfg.Variant is "human" or "" ? "donut" : cfg.Variant;
+                return $"anus_{aVariant}_3_0_FRONT";
+            case ErpOrganSlots.Vagina:
+                return $"vagina_{cfg.Variant}_1_0_FRONT";
+            default:
+                return $"{slotId}_{cfg.Variant}_3_0_FRONT";
+        }
+    }
 
-        return $"{slotId}_{cfg.Variant}_{cfg.Size}_0";
+    private static Vector2 BuildOrganScale(string slotId, ErpOrganConfig cfg)
+    {
+        switch (slotId)
+        {
+            case ErpOrganSlots.Penis:
+                return new Vector2(
+                    1f + (cfg.Size - 3) * 0.04f,
+                    0.4f + cfg.Size * 0.2f);
+            case ErpOrganSlots.Testicles:
+                var ts = 0.7f + (cfg.Size - 1) * 0.15f;
+                return new Vector2(ts, ts);
+            case ErpOrganSlots.Anus:
+                var as_ = 1f + (cfg.Size - 3) * 0.1f;
+                return new Vector2(as_, as_);
+            default:
+                return Vector2.One;
+        }
     }
 }

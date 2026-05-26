@@ -13,7 +13,7 @@ public sealed class ErpOrganPreferences
     public Dictionary<string, ErpOrganConfig> Organs { get; set; } = new();
 
     public ErpOrganConfig GetOrgan(string slotId)
-        => Organs.TryGetValue(slotId, out var cfg) ? cfg : ErpOrganConfig.Default();
+        => Organs.TryGetValue(slotId, out var cfg) ? cfg : new ErpOrganConfig();
 
     public void SetOrgan(string slotId, ErpOrganConfig cfg)
         => Organs[slotId] = cfg;
@@ -32,8 +32,6 @@ public sealed class ErpOrganConfig
 
     /// <summary>Tint color. Null = use character skin color.</summary>
     public Color? Color { get; set; } = null;
-
-    public static ErpOrganConfig Default() => new();
 }
 
 /// <summary>Organ slot ids used as keys in ErpOrganPreferences.</summary>
@@ -44,6 +42,7 @@ public static class ErpOrganSlots
     public const string Breasts = "breasts";
     public const string Testicles = "testicles";
     public const string Anus = "anus";
+    public const string Butt = "butt";
 
-    public static readonly IReadOnlyList<string> All = [Penis, Vagina, Breasts, Testicles, Anus];
+    public static readonly IReadOnlyList<string> All = [Vagina, Breasts, Testicles, Penis, Butt, Anus];
 }

@@ -529,6 +529,8 @@
     groinCommon:
     - proto: OrganAnus
       slot: anus
+    - proto: OrganButt
+      slot: butt
     groinMale:
     - proto: OrganPenis
       slot: penis

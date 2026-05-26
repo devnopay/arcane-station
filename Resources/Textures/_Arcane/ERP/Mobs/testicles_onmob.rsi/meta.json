@@ -1,9 +1,9 @@
-{
+﻿{
   "version": 1,
   "license": "TODO",
-  "copyright": "Ported from S.P.L.U.R.T-Station-13",
+  "copyright": "",
   "size": { "x": 32, "y": 32 },
   "states": [
-    { "name": "testicles_human_3_0", "directions": 1 }
+    { "name": "testicles_single_2_0_FRONT", "directions": 4 }
   ]
 }
