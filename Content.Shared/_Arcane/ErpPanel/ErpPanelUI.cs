@@ -16,7 +16,9 @@ public sealed class ErpPanelBuiState(NetEntity user, NetEntity target) : BoundUs
 }
 
 [Serializable, NetSerializable]
-public sealed partial class ErpPanelSendMessage(string interaction) : BoundUserInterfaceMessage
+public sealed partial class ErpPanelSendMessage(string interaction, float customArousal, float customMoaning) : BoundUserInterfaceMessage
 {
     public readonly string Interaction = interaction;
+    public readonly float CustomArousal = customArousal;
+    public readonly float CustomMoaning = customMoaning;
 }

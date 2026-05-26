@@ -1,8 +1,10 @@
 using Content.Server._Arcane.ERP;
 using Content.Server.Chat.Systems;
 using Content.Server.Interaction;
+using Content.Shared._Arcane.ERP;
 using Content.Shared._Arcane.ErpPanel;
 using Content.Shared.Chat;
+using Content.Shared.IdentityManagement;
 using Content.Shared.Verbs;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
@@ -28,7 +30,6 @@ public sealed partial class ErpPanelSystem : EntitySystem
         SubscribeLocalEvent<ErpPanelOwnerComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<ErpPanelOwnerComponent, GetVerbsEvent<AlternativeVerb>>(OnGetVerbs);
 
-        SubscribeLocalEvent<ErpPanelOwnerComponent, BoundUIOpenedEvent>(OnBoundUIOpenedEvent);
         SubscribeLocalEvent<ErpPanelOwnerComponent, BoundUIClosedEvent>(OnBoundUIClosedEvent);
 
         Subs.BuiEvents<ErpPanelOwnerComponent>(ErpPanelKey.Key, subs =>
@@ -54,8 +55,8 @@ public sealed partial class ErpPanelSystem : EntitySystem
         AlternativeVerb verb = new()
         {
             Act = () => {
+                TryOpenPanel(args.User, args.Target);
                 userPanel.Target = args.Target;
-                OpenUI(args.User, args.Target);
             },
             Text = Loc.GetString("erp-panel-open-verb"),
             Icon = new SpriteSpecifier.Rsi(new("Mobs/Silicon/station_ai.rsi"), "default"),
@@ -64,18 +65,6 @@ public sealed partial class ErpPanelSystem : EntitySystem
         };
 
         args.Verbs.Add(verb);
-    }
-
-    private void OnBoundUIOpenedEvent(Entity<ErpPanelOwnerComponent> entity, ref BoundUIOpenedEvent args)
-    {
-        if (args.UiKey is not ErpPanelKey.Key)
-            return;
-
-        if (entity.Comp.Target == null)
-            return;
-
-        var state = new ErpPanelBuiState(GetNetEntity(entity.Owner), GetNetEntity(entity.Comp.Target.Value));
-        _ui.SetUiState(entity.Owner, ErpPanelKey.Key, state);
     }
 
     private void OnBoundUIClosedEvent(Entity<ErpPanelOwnerComponent> entity, ref BoundUIClosedEvent args)
@@ -93,10 +82,10 @@ public sealed partial class ErpPanelSystem : EntitySystem
         if (target == null || user != entity.Owner)
             return;
 
-        ProccessInteraction(user, target.Value, args.Interaction);
+        ProccessInteraction(user, target.Value, args.Interaction, args.CustomArousal, args.CustomMoaning);
     }
 
-    public void ProccessInteraction(EntityUid user, EntityUid target, string interactionId)
+    public void ProccessInteraction(EntityUid user, EntityUid target, string interactionId, float customArousal, float customMoaning)
     {
         if (!_prototype.TryIndex<PanelInteractionPrototype>(interactionId, out var interaction))
             return;
@@ -107,32 +96,38 @@ public sealed partial class ErpPanelSystem : EntitySystem
         if (!TryComp<ErpPanelOwnerComponent>(user, out var userPanel))
             return;
 
-        if (interaction.Messages.Count == 0)
-            return;
-
         if (!CheckRequirements(user, target, interaction))
             return;
+
+        _arousal.AddArousal(user, interaction.UserArouse * customArousal / 100);
+        _arousal.AddArousal(target, interaction.TargetArouse * customArousal / 100);
 
         userPanel.Cooldowns[interaction.ID] = _ticking.CurTime;
         Dirty(user, userPanel);
 
         var message = _random.Pick(interaction.Messages)
-            .Replace("$target", MetaData(target).EntityName);
+            .Replace("$target", Identity.Name(target, EntityManager, user));
 
-        _chat.TrySendInGameICMessage(user, message, InGameICChatType.Emote, false, colorOverride: Color.MediumAquamarine);
+        _chat.TrySendInGameICMessage(user, message, InGameICChatType.Emote, false);
     }
 
-    private void OpenUI(EntityUid user, EntityUid target)
+    private void TryOpenPanel(EntityUid user, EntityUid target)
     {
         if (!IsValidUI(user, target))
             return;
 
         _ui.TryOpenUi(user, ErpPanelKey.Key, user);
+
+        var state = new ErpPanelBuiState(GetNetEntity(user), GetNetEntity(target));
+        _ui.SetUiState(user, ErpPanelKey.Key, state);
     }
 
     private bool IsValidUI(EntityUid user, EntityUid target)
     {
         if (!HasComp<ErpPanelOwnerComponent>(user) || !HasComp<ErpPanelOwnerComponent>(target))
+            return false;
+
+        if (TryComp<ErpStatusComponent>(target, out var targetStatus) && targetStatus.Preference == ErpPreference.No)
             return false;
 
         return true;
@@ -141,6 +136,9 @@ public sealed partial class ErpPanelSystem : EntitySystem
     private bool IsValidInteraction(EntityUid user, EntityUid target, PanelInteractionPrototype interaction)
     {
         if (!_interaction.InRangeAndAccessible(user, target, interaction.Range))
+            return false;
+
+        if (interaction.Messages.Count == 0)
             return false;
 
         if (!TryComp<ErpPanelOwnerComponent>(user, out var userPanel))

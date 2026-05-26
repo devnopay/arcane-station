@@ -13,7 +13,7 @@ public sealed class ErpPanelWindowBUI(EntityUid owner, Enum uiKey) : BoundUserIn
         base.Open();
 
         _menu = this.CreateWindow<ErpPanelWindow>();
-        _menu.OnSendEmote += interaction => SendMessage(interaction);
+        _menu.OnSendEmote += (interaction, customArousal, customMoaning) => SendMessage(interaction, customArousal, customMoaning);
     }
 
     protected override void UpdateState(BoundUserInterfaceState state)
@@ -27,8 +27,8 @@ public sealed class ErpPanelWindowBUI(EntityUid owner, Enum uiKey) : BoundUserIn
             _menu.SetTarget(newState.User, newState.Target);
     }
 
-    public void SendMessage(string interaction)
+    public void SendMessage(string interaction, float customArousal, float customMoaning)
     {
-        SendMessage(new ErpPanelSendMessage(interaction));
+        SendMessage(new ErpPanelSendMessage(interaction, customArousal, customMoaning));
     }
 }

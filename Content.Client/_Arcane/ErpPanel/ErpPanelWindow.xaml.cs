@@ -10,6 +10,8 @@ using Content.Client.Stylesheets;
 using Robust.Client.GameObjects;
 using Robust.Shared.Timing;
 using static Robust.Client.UserInterface.Controls.BoxContainer;
+using Content.Shared.IdentityManagement;
+using Content.Shared._Arcane.ERP;
 
 namespace Content.Client._Arcane.ErpPanel;
 
@@ -33,8 +35,9 @@ public sealed partial class ErpPanelWindow : FancyWindow
     private EntityUid? _currentUser;
     private EntityUid? _currentTarget;
     private List<string> _currentInteractions = new();
+    private Dictionary<Button, (TimeSpan, TimeSpan)> _cooldowns = new(); // Кнопка, время последнего использования, кулдаун
 
-    public Action<string>? OnSendEmote;
+    public Action<string, float, float>? OnSendEmote;
 
     public ErpPanelWindow()
     {
@@ -42,14 +45,54 @@ public sealed partial class ErpPanelWindow : FancyWindow
         IoCManager.InjectDependencies(this);
 
         _sprite = _entManager.System<SpriteSystem>();
+
+        SearchInput.OnTextChanged += _ => ReloadInteractionsIfNeeded(true);
+
+        CustomArousalButton.OnPressed += _ => SetArousalSliderVisible(!ArousalSlider.Visible);
+        CustomMoaningButton.OnPressed += _ => SetMoaningSliderVisible(!MoaningSlider.Visible);
+
+        ArousalSlider.OnValueChanged += _ =>
+        {
+            var value = (int) ArousalSlider.Value;
+            ArousalLabel.Text = $"{value}%";
+        };
+
+        MoaningSlider.OnValueChanged += _ =>
+        {
+            var value = (int) MoaningSlider.Value;
+            MoaningLabel.Text = $"{value}%";
+        };
     }
 
     public void SetTarget(NetEntity user, NetEntity target)
     {
         _currentUser = _entManager.GetEntity(user);
         _currentTarget = _entManager.GetEntity(target);
+
         _currentInteractions.Clear();
+
+        if (_currentUser == null || _currentTarget == null)
+            return;
+
+        var targetName = Identity.Name(_currentTarget.Value,
+                                       _entManager,
+                                       _currentUser.Value);
+
+        HeaderLabel.Text = Loc.GetString("erp-panel-header", ("target", targetName));
+
         ReloadInteractionsIfNeeded(true);
+    }
+
+    private void SetArousalSliderVisible(bool visible)
+    {
+        CustomArousalButton.Pressed = visible;
+        ArousalSlider.Visible = visible;
+    }
+
+    private void SetMoaningSliderVisible(bool visible)
+    {
+        CustomMoaningButton.Pressed = visible;
+        MoaningSlider.Visible = visible;
     }
 
     protected override void FrameUpdate(FrameEventArgs args)
@@ -59,7 +102,34 @@ public sealed partial class ErpPanelWindow : FancyWindow
         if (!IsOpen)
             return;
 
+        UpdateCooldowns();
+        UpdateArousal();
         ReloadInteractionsIfNeeded();
+    }
+
+    private void UpdateCooldowns()
+    {
+        var now = _timing.CurTime;
+
+        foreach (var (button, (lastUse, cooldown)) in _cooldowns)
+        {
+            if (now - lastUse >= cooldown)
+            {
+                _cooldowns.Remove(button);
+                button.Disabled = false;
+                continue;
+            }
+
+            button.Disabled = true;
+        }
+    }
+
+    private void UpdateArousal() // TODO: ПЕРЕДЕЛАТЬ КОГДА AROUSAL SYSTEM БУДЕТ В ЕБУЧЕМ SHARED И МЫ СТАНЕМ ОБНОВЛЯТЬ ЭТУ ХУЙНЮ ДИНАМИЧЕСКИ
+    {
+        if (!_entManager.TryGetComponent<ArousalComponent>(_currentUser, out var arousalComponent))
+            return;
+
+        ArousalProgressBar.Value = Math.Clamp(arousalComponent.LastValue / arousalComponent.MaxArousal, 0f, 1f);
     }
 
     private void ReloadInteractionsIfNeeded(bool force = false)
@@ -96,6 +166,9 @@ public sealed partial class ErpPanelWindow : FancyWindow
             if (!requirementPassed)
                 continue;
 
+            if (!InteractionMatchesSearch(interaction))
+                continue;
+
             newInteractions.Add(interaction.ID);
         }
 
@@ -130,6 +203,9 @@ public sealed partial class ErpPanelWindow : FancyWindow
             {
                 var requirementPassed = CheckRequirements(user, target, interaction);
                 if (!requirementPassed)
+                    continue;
+
+                if (!InteractionMatchesSearch(interaction))
                     continue;
 
                 var interactionContainer = PrepareInteractionButton(interaction);
@@ -181,7 +257,6 @@ public sealed partial class ErpPanelWindow : FancyWindow
 
         var button = new Button()
         {
-            Text = interaction.Name,
             HorizontalExpand = true,
             Margin = new Thickness(0, 2, 0, 0),
             StyleClasses = { StyleBase.ButtonSquare },
@@ -193,7 +268,12 @@ public sealed partial class ErpPanelWindow : FancyWindow
             }
         };
 
-        button.OnPressed += _ => OnSendEmote?.Invoke(interaction.ID);
+        button.OnPressed += _ => {
+            OnSendEmote?.Invoke(interaction.ID,
+                                CustomArousalButton.Pressed ? ArousalSlider.Value : 100f,
+                                CustomMoaningButton.Pressed ? MoaningSlider.Value : 100f);
+            _cooldowns[button] = (_timing.CurTime, interaction.Cooldown);
+        };
 
         var icon = new TextureRect()
         {
@@ -202,10 +282,26 @@ public sealed partial class ErpPanelWindow : FancyWindow
             HorizontalAlignment = HAlignment.Left,
         };
 
+        var label = new Label()
+        {
+            Text = interaction.Name,
+            Margin = new Thickness(40, 0, 0, 0)
+        };
+
         button.AddChild(icon);
+        button.AddChild(label);
         container.AddChild(button);
 
         return container;
+    }
+
+    private bool InteractionMatchesSearch(PanelInteractionPrototype interaction)
+    {
+        var searchText = SearchInput.Text.Trim();
+        if (string.IsNullOrEmpty(searchText))
+            return true;
+
+        return interaction.Name.StartsWith(searchText, StringComparison.InvariantCultureIgnoreCase);
     }
 
     private bool CheckRequirements(EntityUid user, EntityUid target, PanelInteractionPrototype interaction)

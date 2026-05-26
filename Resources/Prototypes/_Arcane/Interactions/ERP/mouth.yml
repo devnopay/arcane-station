@@ -12,10 +12,12 @@
   id: SuckDick
   category: Mouth
   name: Сосать Член
+  userArouse: 5
+  targetArouse: 15
   messages:
-  - пиздец $target!
-  - ахуеть $target.
-  - просто кошмар $target.
+  - проталкивает член $target в своё горло.
+  - осторожно сосет член $target.
+  - проводит языком по члену $target во рту.
   icon: _Arcane/Interface/ErpPanel/cock_tongue_fap.png
   targetRequirements:
   - !type:EroticOrganRequirement
