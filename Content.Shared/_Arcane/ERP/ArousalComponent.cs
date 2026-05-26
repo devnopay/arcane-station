@@ -17,7 +17,7 @@ public sealed partial class ArousalComponent : Component
 {
     /// <summary>
     /// Authoritative arousal value as of LastChangeTime.
-    /// Use ArousalSystem.GetArousal to get the current value accounting for decay.
+    /// Use Shared ArousalSystem.GetArousal to get the current value accounting for decay.
     /// </summary>
     [AutoNetworkedField]
     public float LastValue;
@@ -39,7 +39,7 @@ public sealed partial class ArousalComponent : Component
 
     /// <summary>
     /// Registered passive arousal sources. Key is source ID, value is gain per second.
-    /// Use ArousalSystem.SetPassiveSource and ArousalSystem.RemovePassiveSource.
+    /// Use Shared ArousalSystem.SetPassiveSource and SharedArousalSystem.RemovePassiveSource.
     /// </summary>
     public Dictionary<string, float> PassiveSources = [];
 

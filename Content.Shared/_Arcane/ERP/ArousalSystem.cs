@@ -1,9 +1,8 @@
-using Content.Shared._Arcane.ERP;
 using Content.Shared.Alert;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
-namespace Content.Server._Arcane.ERP;
+namespace Content.Shared._Arcane.ERP;
 
 public sealed class ArousalSystem : EntitySystem
 {
