@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "license": "CC-BY-SA-4.0",
+    "copyright": "Made by seraphimttt (Discord)",
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "broken"
+        },
+        {
+            "name": "icon"
+        },
+        {
+            "name": "normal-unshaded",
+            "delays": [
+                [
+                    0.2,
+                    0.2,
+                    0.2,
+                    0.2,
+                    0.2,
+                    0.2,
+                    0.2,
+                    0.2
+                ]
+            ]
+        },
+        {
+            "name": "off"
+        },
+        {
+            "name": "deny-unshaded"
+        }
+    ]
+}
