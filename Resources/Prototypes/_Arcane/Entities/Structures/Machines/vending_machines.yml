@@ -31,8 +31,8 @@
   - type: Tag
     tags:
       - DroneUsable # Goobstation
-  # Orion-Start
+  # Orion-Edit-Start
   - type: VendingMachinePricing
     defaultPrice: 35
     extraPrice: 100
-  # Orion-End
+  # Orion-Edit-End

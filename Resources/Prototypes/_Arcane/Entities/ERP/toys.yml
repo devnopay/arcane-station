@@ -211,7 +211,7 @@
     state: icon
   - type: Item
     size: Tiny
-    sprite: _Arcane/ERP/Toys/onahole_purpleS.rsi
+    sprite: _Arcane/ERP/Toys/onahole_purple.rsi
 
 - type: entity
   parent: [BaseItem]
