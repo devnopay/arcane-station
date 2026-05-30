@@ -10,6 +10,13 @@
   id: Penis
   name: Член
 
+- id: Neck
+  name: Шея
+
+- type: panelInteractionCategory
+  id: Pussy
+  name: Вагина
+
 - type: panelInteractionCategory
   id: Face
   name: Лицо
@@ -17,10 +24,6 @@
 - type: panelInteractionCategory
   id: Butt
   name: Попа
-
-- type: panelInteractionCategory
-  id: Vagin
-  name: Вагина
 
 - type: panelInteractionCategory
   id: Boobs
