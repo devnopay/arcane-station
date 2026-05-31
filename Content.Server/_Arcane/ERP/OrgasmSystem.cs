@@ -64,7 +64,8 @@ public sealed class OrgasmSystem : EntitySystem
         _chat.TrySendInGameICMessage(uid, Loc.GetString(_random.Pick(OrgasmMessages)), InGameICChatType.Emote, true);
         _popup.PopupEntity(Loc.GetString("orgasm-popup-self"), uid, uid, PopupType.MediumCaution);
 
-        if (gender == Gender.Male)
+        if (TryComp<HumanoidAppearanceComponent>(uid, out var humanoid)
+            && humanoid.Sex is Sex.Male or Sex.Futanari)
             SpawnEjaculation(uid);
 
         var weakness = EnsureComp<OrgasmWeaknessComponent>(uid);
