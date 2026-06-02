@@ -1,8 +1,6 @@
 - type: entity
   parent: ClothingNeckBase
   id: ClothingNeckBloodMantle
-  name: reaper follower's mantle
-  description: A mysterious mantle, one touch of which leaves traces of blood on your fingers. Curious how it got here.
   components:
   - type: Sprite
     sprite: _Arcane/Clothing/Neck/Mantles/blood_mantle.rsi
