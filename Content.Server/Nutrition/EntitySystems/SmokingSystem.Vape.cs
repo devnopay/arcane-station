@@ -50,9 +50,10 @@ namespace Content.Server.Nutrition.EntitySystems
             SubscribeLocalEvent<VapeComponent, GotEmaggedEvent>(OnEmagged);
         }
 
-        private void OnVapeInteraction(Entity<VapeComponent> entity, ref AfterInteractEvent args)
+    ///оффы накакали, и система обращалась хуй пойми к чему. Писюн больше не чешется - я его почесал @axilmon
+        private void OnVapeInteraction(EntityUid uid, VapeComponent comp, ref AfterInteractEvent args)
         {
-            var delay = entity.Comp.Delay;
+            var delay = comp.Delay;
             var forced = true;
             var exploded = false;
 
@@ -76,30 +77,25 @@ namespace Content.Server.Nutrition.EntitySystems
 
             if (args.Target == args.User)
             {
-                delay = entity.Comp.UserDelay;
+                delay = comp.UserDelay;
                 forced = false;
             }
 
-            if (entity.Comp.ExplodeOnUse || _emag.CheckFlag(entity, EmagType.Interaction))
+            if (comp.ExplodeOnUse || _emag.CheckFlag(uid, EmagType.Interaction))
             {
-                _explosionSystem.QueueExplosion(entity.Owner, "Default", entity.Comp.ExplosionIntensity, 0.5f, 3, canCreateVacuum: false);
-                Del(entity);
+                _explosionSystem.QueueExplosion(uid, "Default", comp.ExplosionIntensity, 0.5f, 3, canCreateVacuum: false);
+                Del(uid);
                 exploded = true;
             }
             else
             {
-                // All vapes explode if they contain anything other than pure water???
-                // WTF is this? Why is this? Am I going insane?
-                // Who the fuck vapes pure water?
-                // If this isn't how this is meant to work and this is meant to be for vapes with plasma or something,
-                // just re-use the existing RiggableSystem.
                 foreach (var name in solution.Contents)
                 {
-                    if (name.Reagent.Prototype != entity.Comp.SolutionNeeded)
+                    if (name.Reagent.Prototype != comp.SolutionNeeded)
                     {
                         exploded = true;
-                        _explosionSystem.QueueExplosion(entity.Owner, "Default", entity.Comp.ExplosionIntensity, 0.5f, 3, canCreateVacuum: false);
-                        Del(entity);
+                        _explosionSystem.QueueExplosion(uid, "Default", comp.ExplosionIntensity, 0.5f, 3, canCreateVacuum: false);
+                        Del(uid);
                         break;
                     }
                 }
@@ -128,7 +124,7 @@ namespace Content.Server.Nutrition.EntitySystems
             if (!exploded)
             {
                 var vapeDoAfterEvent = new VapeDoAfterEvent(solution, forced);
-                _doAfterSystem.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User, delay, vapeDoAfterEvent, entity.Owner, target: args.Target, used: entity.Owner)
+                _doAfterSystem.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User, delay, vapeDoAfterEvent, uid, target: args.Target, used: uid)
                 {
                     BreakOnMove = false,
                     BreakOnDamage = true,
@@ -138,7 +134,7 @@ namespace Content.Server.Nutrition.EntitySystems
             args.Handled = true;
         }
 
-        private void OnVapeDoAfter(Entity<VapeComponent> entity, ref VapeDoAfterEvent args)
+        private void OnVapeDoAfter(EntityUid uid, VapeComponent comp, ref VapeDoAfterEvent args)
         {
             if (args.Cancelled || args.Handled || args.Args.Target == null)
                 return;
@@ -150,10 +146,10 @@ namespace Content.Server.Nutrition.EntitySystems
             }
 
             //Smoking kills(your lungs, but there is no organ damage yet)
-            _damageableSystem.TryChangeDamage(args.Args.Target.Value, entity.Comp.Damage, true);
+            _damageableSystem.TryChangeDamage(args.Args.Target.Value, comp.Damage, true);
 
             var merger = new GasMixture(1) { Temperature = args.Solution.Temperature };
-            merger.SetMoles(entity.Comp.GasType, args.Solution.Volume.Value / entity.Comp.ReductionFactor);
+            merger.SetMoles(comp.GasType, args.Solution.Volume.Value / comp.ReductionFactor);
 
             _atmos.Merge(environment, merger);
 
@@ -180,12 +176,12 @@ namespace Content.Server.Nutrition.EntitySystems
             }
         }
 
-        private void OnEmagged(Entity<VapeComponent> entity, ref GotEmaggedEvent args)
+        private void OnEmagged(EntityUid uid, VapeComponent comp, ref GotEmaggedEvent args)
         {
             if (!_emag.CompareFlag(args.Type, EmagType.Interaction))
                 return;
 
-            if (_emag.CheckFlag(entity, EmagType.Interaction))
+            if (_emag.CheckFlag(uid, EmagType.Interaction))
                 return;
 
             args.Handled = true;
