@@ -1,6 +1,8 @@
+using System.Numerics;
 using Content.Server.Body.Systems;
 using Content.Server.Chat.Systems;
 using Content.Server.Forensics;
+using Content.Shared.Interaction;
 using Content.Shared._Arcane.ERP;
 using Content.Shared.Chat;
 using Content.Shared.Chemistry.EntitySystems;
@@ -13,6 +15,7 @@ using Robust.Server.GameObjects;
 using Robust.Shared.Audio;
 using Robust.Shared.Enums;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
@@ -29,11 +32,18 @@ public sealed class OrgasmSystem : EntitySystem
     [Dependency] private readonly SharedPopupSystem _popup = default!;
     [Dependency] private readonly IPrototypeManager _prototype = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
+    [Dependency] private readonly SharedInteractionSystem _interaction = default!;
     [Dependency] private readonly SharedSolutionContainerSystem _solutionContainer = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly TransformSystem _transform = default!;
 
     private static readonly EntProtoId HeartsProto = "EffectHearts";
+    private static readonly EntProtoId CumWallProto = "EffectCumWall";
+    private const float EjaculationDistance = 0.6f;
+    private const float EjaculationBlockedDistance = 0.1f;
+    private const float EjaculationWallCheckExtraRange = 0.1f;
+    private const float EjaculationTargetRange = 0.8f;
+    private const float EjaculationForwardDot = 0.6f;
 
     private static readonly EntProtoId[] SemenPuddleProtos =
     [
@@ -80,6 +90,7 @@ public sealed class OrgasmSystem : EntitySystem
         Dirty(uid, weakness);
     }
 
+    // TODO: move overlay logic to Content.Shared for prediction
     private void SpawnEjaculation(EntityUid uid, Sex sex)
     {
         if (sex is Sex.Unsexed)
@@ -88,8 +99,19 @@ public sealed class OrgasmSystem : EntitySystem
         var puddleProtos = sex is Sex.Female ? FemCumPuddleProtos : SemenPuddleProtos;
 
         var xform = Transform(uid);
-        var forward = xform.LocalRotation.ToVec();
-        var coords = xform.Coordinates.Offset(forward * 0.6f);
+        var (sourcePos, sourceRot) = _transform.GetWorldPositionRotation(xform);
+        var sourceMap = _transform.ToMapCoordinates(xform.Coordinates);
+        var forward = sourceRot.ToWorldVec();
+        var forwardMap = new MapCoordinates(sourcePos + forward * EjaculationDistance, sourceMap.MapId);
+
+        var wallBlocked = !_interaction.InRangeUnobstructed(uid, forwardMap, EjaculationDistance + EjaculationWallCheckExtraRange);
+        var coords = wallBlocked
+            ? new MapCoordinates(sourcePos + forward * EjaculationBlockedDistance, sourceMap.MapId)
+            : forwardMap;
+
+        if (wallBlocked)
+            Spawn(CumWallProto, forwardMap);
+
         var puddle = Spawn(_random.Pick(puddleProtos), coords);
         _forensics.TransferDna(puddle, uid, false);
 
@@ -102,13 +124,18 @@ public sealed class OrgasmSystem : EntitySystem
             }
         }
 
-        AddCumOverlay(uid);
-
-        var mapCoords = _transform.ToMapCoordinates(coords);
-        foreach (var target in _lookup.GetEntitiesInRange<HumanoidAppearanceComponent>(mapCoords, 0.8f))
+        foreach (var target in _lookup.GetEntitiesInRange<HumanoidAppearanceComponent>(sourceMap, EjaculationDistance + EjaculationTargetRange))
         {
             if (target.Owner == uid)
                 continue;
+
+            var toTarget = _transform.GetWorldPosition(target.Owner) - sourcePos;
+            if (toTarget == Vector2.Zero || Vector2.Dot(toTarget.Normalized(), forward) < EjaculationForwardDot)
+                continue;
+
+            if (!_interaction.InRangeUnobstructed(uid, target.Owner, EjaculationDistance + EjaculationTargetRange))
+                continue;
+
             AddCumOverlay(target.Owner);
         }
     }
