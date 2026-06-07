@@ -36,7 +36,7 @@ public sealed partial class SlotMachineComponent : Component
     #region Chances
 
     [DataField, AutoNetworkedField]
-    public float SmallWinChance = .20f; // Arcane-edit
+    public float SmallWinChance = .20f;
 
     [DataField, AutoNetworkedField]
     public float MediumWinChance = .08f; // Arcane-edit
