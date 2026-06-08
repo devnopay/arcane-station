@@ -1,3 +1,3 @@
 ent-ClothingUniformDressesWithFlowers = dresses with flowers
-    .desc = Black dress with gright flowers. Something is clearly missing.
+    .desc = Black dress with bright flowers. Something is clearly missing.
 

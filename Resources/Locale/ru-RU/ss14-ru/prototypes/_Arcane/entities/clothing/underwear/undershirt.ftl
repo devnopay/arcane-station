@@ -6,4 +6,3 @@ ent-ClothingUndershirtNippleStickers = наклейки на соски
     .desc = Наклейки для ваших самых извращенных утех.
 ent-ClothingUndershirtHeart-ShapedNippleStickers = наклейки на соски в форме сердечек
     .desc = Наклейки в форме сердечек для ваших самых извращенных утех.
-

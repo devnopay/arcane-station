@@ -20,7 +20,7 @@
   parent: ClothingBraBase
   id: ClothingUndershirtNippleStickers
   name: nipple strickers
-  description: Stickers for your most percerse pleasures.
+  description: Stickers for your most perverted pleasures.
   components:
   - type: Sprite
     sprite: _Arcane/Clothing/Underwear/undershirt/nipple_stickers.rsi
@@ -29,7 +29,7 @@
   parent: ClothingBraBase
   id: ClothingUndershirtHeart-ShapedNippleStickers
   name: heart-shaped nipple stickers
-  description: Heart-shaped stickers for your most percerse pleasures.
+  description: Heart-shaped stickers for your most perverted pleasures.
   components:
   - type: Sprite
     sprite: _Arcane/Clothing/Underwear/undershirt/heart-shaped_nipple_stickers.rsi
