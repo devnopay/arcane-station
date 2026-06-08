@@ -114,16 +114,20 @@ public sealed partial class ErpPanelSystem : EntitySystem
         customArousal = Math.Clamp(customArousal, 0, 300);
         customMoaning = Math.Clamp(customMoaning, 0, 300);
 
-        // Block if the target would receive arousal but is currently refractory.
-        if (interaction.TargetArouse > 0 && !_arousal.CanAddArousal(target))
-        {
-            var key = user == target ? "erp-refractory-self" : "erp-refractory-target";
-            _popup.PopupEntity(Loc.GetString(key), target, user, PopupType.SmallCaution);
-            return;
-        }
-
         if (interaction.TargetArouse > 0)
+        {
+            // Block if the target would receive arousal but is currently refractory.
+            if (!_arousal.CanAddArousal(target))
+            {
+                var key = user == target ? "erp-refractory-self" : "erp-refractory-target";
+                _popup.PopupEntity(Loc.GetString(key), target, user, PopupType.SmallCaution);
+                return;
+            }
+
             Spawn(_heartsProto, _transform.GetMapCoordinates(target));
+            _arousal.AddArousal(target, interaction.TargetArouse * customArousal / 100);
+            ProccessMoan(target, customMoaning);
+        }
 
         userPanel.Cooldowns[interaction.ID] = _ticking.CurTime;
         Dirty(user, userPanel);
@@ -131,20 +135,21 @@ public sealed partial class ErpPanelSystem : EntitySystem
         ProccessMessages(user, target, interaction);
         ProccessSounds(user, interaction);
 
-        _arousal.AddArousal(target, interaction.TargetArouse * customArousal / 100);
-        ProccessMoan(target, customMoaning);
-
         if (user == target)
             return;
 
-        if (interaction.UserArouse > 0 && !_arousal.CanAddArousal(user))
+        if (interaction.UserArouse > 0)
         {
-            _popup.PopupEntity(Loc.GetString("erp-refractory-self"), user, user, PopupType.SmallCaution);
-            return;
+            if (!_arousal.CanAddArousal(user))
+            {
+                _popup.PopupEntity(Loc.GetString("erp-refractory-self"), user, user, PopupType.SmallCaution);
+                return;
+            }
+
+            _arousal.AddArousal(user, interaction.UserArouse * customArousal / 100);
+            ProccessMoan(user, customMoaning);
         }
 
-        _arousal.AddArousal(user, interaction.UserArouse * customArousal / 100);
-        ProccessMoan(user, customMoaning);
     }
 
     private void ProccessMoan(EntityUid uid, float customMoaning)
