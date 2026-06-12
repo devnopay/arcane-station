@@ -73,6 +73,7 @@ using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared;
 using Robust.Shared.Configuration;
+using Content.Shared._Arcane.CCVars;
 
 namespace Content.Client.Options.UI.Tabs;
 
@@ -145,6 +146,7 @@ public sealed partial class AudioTab : Control
             _cfg.GetCVar(CCVars.MinMaxAmbientSourcesConfigured),
             _cfg.GetCVar(CCVars.MaxMaxAmbientSourcesConfigured));
 
+        Control.AddOptionCheckBox(ACCVars.UseTTS, UseTTSCheckBox); // Arcane
         Control.AddOptionCheckBox(CCVars.CombatModeSoundEnabled, CombatModeSoundCheckBox); // Orion
         Control.AddOptionCheckBox(CCVars.LobbyMusicEnabled, LobbyMusicCheckBox);
         Control.AddOptionCheckBox(CCVars.RestartSoundsEnabled, RestartSoundsCheckBox);

@@ -1,3 +1,4 @@
+using Content.Shared._Arcane.CCVars;
 using Content.Shared._Art.CVars;
 using Content.Shared._Art.TTS;
 using Content.Shared.Chat;
@@ -32,6 +33,7 @@ public sealed class TTSSystem : EntitySystem
     private const float WhisperVolumeReduction = 4f;
 
     private float _volume = 0.0f;
+    private bool _useTTS = false; // Arcane
     private ulong _fileIdx = 0;
     private static ulong _shareIdx = 0;
 
@@ -41,6 +43,7 @@ public sealed class TTSSystem : EntitySystem
         _sawmill = Logger.GetSawmill("tts");
         _res.AddRoot(_prefix, _contentRoot);
         _cfg.OnValueChanged(ArtCVars.TTSVolume, OnTtsVolumeChanged, true);
+        _cfg.OnValueChanged(ACCVars.UseTTS, OnUseTTSChanged, true); // Arcane
         SubscribeNetworkEvent<PlayTTSEvent>(OnPlayTTS);
         SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundRestart);
     }
@@ -68,8 +71,20 @@ public sealed class TTSSystem : EntitySystem
         _volume = volume;
     }
 
+    // Arcane-start
+    private void OnUseTTSChanged(bool value)
+    {
+        _useTTS = value;
+    }
+    // Arcane-end
+
     private void OnPlayTTS(PlayTTSEvent ev)
     {
+        // Arcane-start
+        if (!_useTTS)
+            return;
+        // Arcane-end
+
         _sawmill.Verbose($"Play TTS audio {ev.Data.Length} bytes from {ev.SourceUid} entity");
 
         var filePath = new ResPath($"{_fileIdx++}.ogg");

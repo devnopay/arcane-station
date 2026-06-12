@@ -512,8 +512,10 @@
   - type: VisibleContraband # Goobstation
   - type: Posing # Orion
   - type: MomentumSteering # Goobstation - No steer
-  - type: ErpPanelOwner # Arcane
-  - type: TTS # Art-TTS
+  # Arcane-start
+  - type: ErpPanelOwner
+  - type: TTS
+  # Arcane-end
 
 - type: entity
   save: false

@@ -35,6 +35,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                 <ui:OptionSlider Name="SliderVolumeTTS" Title="{Loc 'ui-options-tts-volume'}" /><!-- Art-TTS -->
                 <ui:OptionSlider Name="SliderMaxAmbienceSounds" Title="{Loc 'ui-options-ambience-max-sounds'}"
                                  Margin="0 0 0 8" />
+                <CheckBox Name="UseTTSCheckBox" Text="{Loc 'ui-options-use-tts'}"/> <!-- Arcane -->
                 <!-- Orion-Start -->
                 <CheckBox Name="CombatModeSoundCheckBox" Text="{Loc 'ui-options-combat-mode-sound'}" />
                 <!-- Orion-End -->

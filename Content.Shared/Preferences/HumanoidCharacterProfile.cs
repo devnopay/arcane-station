@@ -397,18 +397,23 @@ namespace Content.Shared.Preferences
             var width = 1f; // Goobstation: port EE height/width sliders
             if (prototypeManager.TryIndex<SpeciesPrototype>(species, out var speciesPrototype))
             {
-                sex = random.Pick(speciesPrototype.Sexes);
+                sex = speciesPrototype.Sexes.Count > 0
+                    ? random.Pick(speciesPrototype.Sexes)
+                    : Sex.Unsexed;
                 age = random.Next(speciesPrototype.MinAge, speciesPrototype.OldAge); // people don't look and keep making 119 year old characters with zero rp, cap it at middle aged
                 height = random.NextFloat(speciesPrototype.MinHeight, speciesPrototype.MaxHeight); // Goobstation: port EE height/width sliders
                 width = random.NextFloat(speciesPrototype.MinWidth, speciesPrototype.MaxWidth); // Goobstation: port EE height/width sliders
             }
 
             // Goob Station - Barks Start
-            var barkvoiceId = random.Pick(prototypeManager
+            var barkVoiceCandidates = prototypeManager
                 .EnumeratePrototypes<BarkPrototype>()
                 .Where(o => o.RoundStart && (o.SpeciesWhitelist is null || o.SpeciesWhitelist.Contains(species)))
-                .ToArray()
-            );
+                .ToArray();
+
+            var barkvoiceId = barkVoiceCandidates.Length > 0
+                ? random.Pick(barkVoiceCandidates)
+                : SharedHumanoidAppearanceSystem.DefaultBarkVoice;
             //  Goob Station - Barks End
 
             var gender = Gender.Epicene;
@@ -424,9 +429,14 @@ namespace Content.Shared.Preferences
             }
 
             // Art-TTS Start
-            var voiceId = random.Pick(prototypeManager
-            .EnumeratePrototypes<TTSVoicePrototype>()
-            .Where(o => CanHaveVoice(o, sex)).ToArray()).ID;
+            var voiceCandidates = prototypeManager
+                .EnumeratePrototypes<TTSVoicePrototype>()
+                .Where(o => o.RoundStart && CanHaveVoice(o, sex))
+                .ToArray();
+
+            var voiceId = voiceCandidates.Length > 0
+                ? random.Pick(voiceCandidates).ID
+                : SharedHumanoidAppearanceSystem.DefaultSexVoice[sex];
             // Art-TTS End
 
             var name = GetName(species, gender);
@@ -1103,6 +1113,7 @@ namespace Content.Shared.Preferences
             return voice.RoundStart
             && (sex == Sex.Unsexed
             || voice.Sex == sex
+            || voice.Sex == Sex.Female && sex == Sex.Futanari // Arcane
             || voice.Sex == Sex.Unsexed);
         }
         // Art-TTS End

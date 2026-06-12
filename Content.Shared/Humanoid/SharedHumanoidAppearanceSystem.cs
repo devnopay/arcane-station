@@ -90,6 +90,7 @@ public abstract class SharedHumanoidAppearanceSystem : EntitySystem
         { Sex.Male, "zeus_dota_2" },
         { Sex.Female, "lina_dota_2" },
         { Sex.Unsexed, "gman" },
+        { Sex.Futanari, "lina_dota_2" } // Arcane
     };
     // Art-TTS End
 

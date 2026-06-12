@@ -197,7 +197,8 @@ using Direction = Robust.Shared.Maths.Direction;
 using Content.Goobstation.Common.CCVar;
 using Content.Goobstation.Common.Barks;
 using Content.Shared._Orion.RichText;
-using Content.Shared._Arcane.ERP; // Arcane-edit
+using Content.Shared._Arcane.ERP;
+using Content.Shared._Arcane.CCVars; // Arcane-edit
 namespace Content.Client.Lobby.UI
 {
     [GenerateTypedNameReferences]
@@ -415,6 +416,15 @@ namespace Content.Client.Lobby.UI
             }
 
             #endregion
+
+            // Arcane-start
+            _cfgManager.OnValueChanged(ACCVars.UseTTS, OnUseTTSChanged, true);
+
+            ToggleTTS.OnPressed += _ =>
+            {
+                _cfgManager.SetCVar(ACCVars.UseTTS, ToggleTTS.Pressed);
+            };
+            // Arcane-end
 
             RefreshSpecies();
 
@@ -2647,5 +2657,12 @@ namespace Content.Client.Lobby.UI
             label.SetMessage(FormattedMessage.FromMarkupPermissive(safeContent), SafeMarkupTags.Basic);
         }
         // Orion-End
+
+        // Arcane-start
+        private void OnUseTTSChanged(bool value)
+        {
+            ToggleTTS.Pressed = value;
+        }
+        // Arcane-end
     }
 }
