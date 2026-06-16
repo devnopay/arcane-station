@@ -1,7 +1,9 @@
 using System.Linq;
 using Content.Server.Chat.Systems;
+using Content.Shared._Arcane.CCVars;
 using Content.Shared.GameTicking;
 using Content.Shared.Tag;
+using Robust.Shared.Configuration;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
@@ -9,9 +11,11 @@ namespace Content.Server._Arcane.Cleaning;
 
 public sealed partial class AutoCleaningSystem : EntitySystem
 {
+    [Dependency] private readonly IConfigurationManager _cfg = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly ChatSystem _chat = default!;
 
+    private bool _autoCleaningEnabled = false;
     private bool _isActive = false;
     private bool _isWarned = false;
     private static TimeSpan _nextUpdate = TimeSpan.MaxValue;
@@ -24,6 +28,9 @@ public sealed partial class AutoCleaningSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
+
+        Subs.CVar(_cfg, ACCVars.AutoCleaningEnabled, SetAutoCleaningEnabled, true);
+
         SubscribeLocalEvent<RoundStartedEvent>(OnRoundStarted);
         SubscribeLocalEvent<RoundEndedEvent>(OnRoundEnded);
     }
@@ -43,7 +50,7 @@ public sealed partial class AutoCleaningSystem : EntitySystem
     {
         base.Update(frameTime);
 
-        if (!_isActive)
+        if (!_isActive || !_autoCleaningEnabled)
             return;
 
         if (_nextUpdate < _timing.CurTime)
@@ -77,5 +84,10 @@ public sealed partial class AutoCleaningSystem : EntitySystem
                 QueueDel(uid);
             }
         }
+    }
+
+    private void SetAutoCleaningEnabled(bool value)
+    {
+        _autoCleaningEnabled = value;
     }
 }
