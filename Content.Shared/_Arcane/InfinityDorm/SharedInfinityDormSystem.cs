@@ -30,6 +30,8 @@ using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.Tag;
 using Robust.Shared.Containers;
+using Robust.Shared.Map.Components;
+using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
 
 namespace Content.Shared._Arcane.InfinityDorm;
@@ -42,6 +44,7 @@ public sealed class SharedInfinityDormSystem : EntitySystem
     [Dependency] private readonly SharedBodySystem _body = default!;
     [Dependency] private readonly SparksSystem _sparks = default!;
     [Dependency] private readonly SharedChatSystem _chat = default!;
+    [Dependency] private readonly INetManager _net = default!;
 
     private static readonly ProtoId<TagPrototype> InfiniteDormItemTag = "InfiniteDormItem";
     private static readonly ProtoId<TagPrototype> InfiniteDormItemBlockTag = "InfiniteDormItemBlock";
@@ -112,7 +115,13 @@ public sealed class SharedInfinityDormSystem : EntitySystem
 
     private void OnVisitorParentChanged(ref EntParentChangedMessage args)
     {
+        if (_net.IsClient)
+            return;
+
         if (HasComp<GhostComponent>(args.Entity))
+            return;
+
+        if (!HasComp<MapGridComponent>(_transform.GetParentUid(args.Entity)))
             return;
 
         var isDorm = HasComp<InfinityDormComponent>(_transform.GetParentUid(args.Entity));
