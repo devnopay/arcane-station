@@ -190,6 +190,7 @@ using Content.Server.MoMMI;
 using Content.Server.Players.RateLimiting;
 using Content.Server.Preferences.Managers;
 using Content.Shared.Administration;
+using Content.Shared._Arcane.Sponsor;
 using Content.Shared.CCVar;
 using Content.Shared.Chat;
 using Content.Shared.Database;
@@ -208,13 +209,17 @@ namespace Content.Server.Chat.Managers;
 /// </summary>
 internal sealed partial class ChatManager : IChatManager
 {
+    // arcane sponsor start
     private static readonly Dictionary<string, string> PatronOocColors = new()
     {
+        { ArcaneSponsorTiers.Tier1, ArcaneSponsorTiers.Tier1OocColor },
+        { ArcaneSponsorTiers.Tier2, ArcaneSponsorTiers.Tier2OocColor },
         // I had plans for multiple colors and those went nowhere so...
         { "nuclear_operative", "#aa00ff" },
         { "syndicate_agent", "#aa00ff" },
         { "revolutionary", "#aa00ff" }
     };
+    // arcane sponsor end
 
     [Dependency] private readonly IReplayRecordingManager _replay = default!;
     [Dependency] private readonly IServerNetManager _netManager = default!;
@@ -450,18 +455,21 @@ internal sealed partial class ChatManager : IChatManager
         if (_netConfigManager.GetClientCVar(player.Channel, CCVars.ShowOocPatronColor) &&
             _linkAccount.GetPatron(player)?.Tier is { } tier)
         {
+            // arcane sponsor start
+            var patronColor = PatronOocColors.GetValueOrDefault(tier.Tier, ArcaneSponsorTiers.GetOocColor(tier.Tier));
+            // arcane sponsor end
             if (tier.Icon != null)
             {
                 wrappedMessage = Loc.GetString("chat-manager-send-ooc-patron-wrap-message",
                     ("tierIcon", tier.Icon),
-                    ("patronColor", "#aa00ff"),
+                    ("patronColor", patronColor),
                     ("playerName", player.Name),
                     ("message", FormattedMessage.EscapeText(message)));
             }
             else
             {
                 wrappedMessage = Loc.GetString("chat-manager-send-ooc-patron-wrap-message-no-icon",
-                    ("patronColor", "#aa00ff"),
+                    ("patronColor", patronColor),
                     ("playerName", player.Name),
                     ("message", FormattedMessage.EscapeText(message)));
             }
