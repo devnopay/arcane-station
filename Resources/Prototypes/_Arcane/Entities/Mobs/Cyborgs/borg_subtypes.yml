@@ -56,6 +56,15 @@
     disableMovementVisuals: true
   dummyPrototype: BorgChassisEngineerMMeka
 
+- type: borgSubtype
+  parentBorgType: engineering
+  id: engineer_dullahan
+  spritePath: _Arcane/Mobs/Silicon/Engineering/dullahaneng.rsi
+  visuals:
+    restBodyState: engineer-rest
+    disableMovementVisuals: true
+  dummyPrototype: BorgChassisEngineerDullahan
+
 # Janitor subtypes
 
 - type: borgSubtype
@@ -293,3 +302,12 @@
     restBodyState: service-rest
     disableMovementVisuals: true
   dummyPrototype: BorgChassisServiceMMeka
+
+- type: borgSubtype
+  parentBorgType: service
+  id: service_dullahan
+  spritePath: _Arcane/Mobs/Silicon/Service/dullahanserv.rsi
+  visuals:
+    restBodyState: service-rest
+    disableMovementVisuals: true
+  dummyPrototype: BorgChassisServiceDullahan
