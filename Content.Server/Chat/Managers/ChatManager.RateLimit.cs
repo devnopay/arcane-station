@@ -39,7 +39,10 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+using Content.Shared._Shitmed.Damage;
+using Content.Shared._Shitmed.Targeting;
 using Content.Shared.CCVar;
+using Content.Shared.Damage;
 using Content.Shared.Database;
 using Content.Shared.Players.RateLimiting;
 using Robust.Shared.Player;
@@ -64,6 +67,10 @@ internal sealed partial class ChatManager
 
     private void RateLimitPlayerLimited(ICommonSession player)
     {
+        // Arcane-start
+        var damageable = _entityManager.System<DamageableSystem>();
+        damageable.TryChangeDamage(player.AttachedEntity, _rateLimitDamage, true, targetPart: TargetBodyPart.Head); // Arcane
+        // Arcane-end
         DispatchServerMessage(player, Loc.GetString("chat-manager-rate-limited"), suppressLog: true);
     }
 

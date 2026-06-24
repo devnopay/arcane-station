@@ -201,6 +201,9 @@ using Robust.Shared.Network;
 using Robust.Shared.Player;
 using Robust.Shared.Replays;
 using Robust.Shared.Utility;
+using Content.Shared.Damage;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using Content.Goobstation.Maths.FixedPoint;
 
 namespace Content.Server.Chat.Managers;
 
@@ -244,6 +247,16 @@ internal sealed partial class ChatManager : IChatManager
     private bool _adminOocEnabled = true;
 
     private readonly Dictionary<NetUserId, ChatUser> _players = new();
+
+    // Arcane-start
+    private readonly DamageSpecifier _rateLimitDamage = new()
+    {
+        DamageDict = new Dictionary<string, FixedPoint2>
+        {
+            ["Cellular"] = 20
+        },
+    };
+    // Arcane-end
 
     public void Initialize()
     {
