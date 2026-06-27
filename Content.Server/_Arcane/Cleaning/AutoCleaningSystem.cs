@@ -77,7 +77,7 @@ public sealed partial class AutoCleaningSystem : EntitySystem
             _nextUpdate = _timing.CurTime + _warningWaiting;
             _isWarned = true;
 
-            _chat.DispatchGlobalAnnouncement(Loc.GetString("cent-com-cleaning-warning", ("seconds", _warningWaiting.Seconds)), colorOverride: Color.Aqua);
+            _chat.DispatchGlobalAnnouncement(Loc.GetString("cent-com-cleaning-warning", ("seconds", _warningWaiting.Seconds)), playSound: false, colorOverride: Color.Aqua);
 
             _sawmill.Info($"AutoCleaning warning sent. Cleaning in {_warningWaiting.Seconds} seconds");
         }
@@ -96,6 +96,7 @@ public sealed partial class AutoCleaningSystem : EntitySystem
         {
             _chat.DispatchGlobalAnnouncement(
                 Loc.GetString("cent-com-cleaning-announce", ("count", cleanedCount)),
+                playSound: false,
                 colorOverride: Color.Aqua
             );
 
