@@ -932,7 +932,7 @@ namespace Content.Client.Lobby.UI
         private void RefreshErpOrganPreview()
         {
             var phase = _erpPenisArousedPreview ? ArousalPhase.Aroused : ArousalPhase.Calm;
-            _entManager.System<ErpOrganVisualsSystem>().RefreshPreview(PreviewDummy, _erpOrganPrefs, CharacterSlot ?? 0, phase);
+            _entManager.System<ErpOrganVisualsSystem>().RefreshPreview(PreviewDummy, _erpOrganPrefs, CharacterSlot, phase);
         }
         // Arcane-End
 

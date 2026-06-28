@@ -21,7 +21,6 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
 {
     [Dependency] private readonly SpriteSystem _sprite = default!;
     [Dependency] private readonly ClientErpOrganPreferencesManager _erpPrefs = default!;
-    [Dependency] private readonly IClientPreferencesManager _prefs = default!;
     [Dependency] private readonly IPrototypeManager _proto = default!;
     [Dependency] private readonly IComponentFactory _componentFactory = default!;
     [Dependency] private readonly InventorySystem _inventory = default!;
@@ -37,6 +36,8 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
     private readonly List<string> _orderedSlots = new();
     // preview entity → character slot index; set by RefreshPreview so OnPreviewProfileLoaded uses the correct slot.
     private readonly Dictionary<EntityUid, int> _previewSlots = new();
+    // preview entity -> last explicit preferences; used when preview has no backing character slot.
+    private readonly Dictionary<EntityUid, ErpOrganPreferences> _previewPrefs = new();
 
     public override void Initialize()
     {
@@ -89,7 +90,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         return fallback;
     }
 
-    public void RefreshPreview(EntityUid uid, ErpOrganPreferences prefs, int slot, ArousalPhase phase = ArousalPhase.Calm)
+    public void RefreshPreview(EntityUid uid, ErpOrganPreferences prefs, int? slot, ArousalPhase phase = ArousalPhase.Calm)
     {
         if (!IsClientSide(uid))
             return;
@@ -97,7 +98,12 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         if (!TryComp<SpriteComponent>(uid, out var sprite))
             return;
 
-        _previewSlots[uid] = slot;
+        if (slot is { } slotIndex)
+            _previewSlots[uid] = slotIndex;
+        else
+            _previewSlots.Remove(uid);
+
+        _previewPrefs[uid] = prefs;
 
         var humanoid = CompOrNull<HumanoidAppearanceComponent>(uid);
         var visuals = EnsureComp<ErpOrganVisualsComponent>(uid);
@@ -126,8 +132,9 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
             return;
         }
 
-        var slot = _previewSlots.TryGetValue(ent, out var s) ? s : (_prefs.Preferences?.SelectedCharacterIndex ?? 0);
-        var organPrefs = _erpPrefs.GetSlot(slot);
+        var organPrefs = _previewSlots.TryGetValue(ent, out var slot)
+            ? _erpPrefs.GetSlot(slot)
+            : _previewPrefs.GetValueOrDefault(ent, ErpOrganPreferences.Default());
 
         var visuals = EnsureComp<ErpOrganVisualsComponent>(ent);
         visuals.Organs = BuildPreviewOrgans(organPrefs, ent.Comp);
@@ -261,6 +268,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
     private void OnOrganShutdown(Entity<ErpOrganVisualsComponent> ent, ref ComponentShutdown args)
     {
         _previewSlots.Remove(ent);
+        _previewPrefs.Remove(ent);
 
         if (!TryComp<SpriteComponent>(ent, out var sprite))
             return;
