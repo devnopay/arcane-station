@@ -1,6 +1,9 @@
+erp-interaction-cock-pussy-fuck = Трахнуть вагину
+
 erp-organ-section-title = ERP Органы
 erp-organ-size-label = Размер:
 erp-organ-skin-color-label = Цвет кожи
+erp-organ-penis-aroused-preview-label = Эрекция
 
 erp-preferences-tab-organ-penis = Пенис
 erp-preferences-tab-organ-vagina = Вагина

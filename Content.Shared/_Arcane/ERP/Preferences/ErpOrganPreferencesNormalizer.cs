@@ -23,7 +23,8 @@ public static class ErpOrganPreferencesNormalizer
             var size = Math.Clamp(cfg.Size, 1, maxSize);
 
             string variant;
-            if (ErpOrganSlots.Variants.TryGetValue(slotId, out var allowed))
+            var allowed = ErpOrganSlots.Variants.GetValueOrDefault(slotId);
+            if (allowed is { Length: > 0 })
                 variant = Array.IndexOf(allowed, cfg.Variant) >= 0 ? cfg.Variant : allowed[0];
             else
                 variant = cfg.Variant;
@@ -38,11 +39,47 @@ public static class ErpOrganPreferencesNormalizer
 
             result.Organs[slotId] = new ErpOrganConfig
             {
-                Size    = size,
+                Size = size,
                 Variant = variant,
-                Color   = color,
+                Color = color,
             };
         }
+        return result;
+    }
+
+    public static ErpOrganPreferences Normalize(ErpOrganPreferences? input, IReadOnlyList<ErpOrganEditorDefinition> definitions)
+    {
+        if (input?.Organs == null)
+            return ErpOrganPreferences.Default();
+
+        var result = new ErpOrganPreferences();
+        foreach (var def in definitions)
+        {
+            if (!input.Organs.TryGetValue(def.SlotId, out var cfg))
+                continue;
+
+            var size = Math.Clamp(cfg.Size, 1, def.MaxSize);
+
+            var variant = cfg.Variant;
+            if (def.Variants.Length > 0 && Array.IndexOf(def.Variants, variant) < 0)
+                variant = def.DefaultVariant;
+
+            Color? color = null;
+            if (def.AllowColor && cfg.Color is { } raw)
+                color = new Color(
+                    ClampChannel(raw.R),
+                    ClampChannel(raw.G),
+                    ClampChannel(raw.B),
+                    ClampChannel(raw.A, 1f));
+
+            result.Organs[def.SlotId] = new ErpOrganConfig
+            {
+                Size = size,
+                Variant = variant,
+                Color = color,
+            };
+        }
+
         return result;
     }
 

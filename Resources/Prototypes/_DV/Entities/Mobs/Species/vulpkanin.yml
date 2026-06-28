@@ -264,8 +264,11 @@
             sprite: _White/Mobs/Species/displacement.rsi
             state: shoes
   # Orion-End
-  # Arcane-start: species default organ variant
+  # Arcane-start: species-specific organ prototypes
   - type: EroticOrgans
-    defaultVariants:
-      penis: knotted
+    groinMale:
+    - proto: OrganPenisVulpkanin
+      slot: penis
+    - proto: OrganTesticles
+      slot: testicles
   # Arcane-end

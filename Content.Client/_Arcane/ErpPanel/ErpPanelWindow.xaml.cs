@@ -12,6 +12,7 @@ using Robust.Shared.Timing;
 using static Robust.Client.UserInterface.Controls.BoxContainer;
 using Content.Shared.IdentityManagement;
 using Content.Shared._Arcane.ERP;
+using Robust.Shared.Localization;
 
 namespace Content.Client._Arcane.ErpPanel;
 
@@ -209,7 +210,7 @@ public sealed partial class ErpPanelWindow : FancyWindow
             var categoryCollapsible = PrepareInteractionCategory(category);
             var categoryBody = new BoxContainer() { Orientation = LayoutOrientation.Vertical };
 
-            foreach (var interaction in interactions.Where(i => i.Category.Id == category.ID).OrderBy(i => i.Name))
+            foreach (var interaction in interactions.Where(i => i.Category.Id == category.ID).OrderBy(i => Loc.GetString(i.Name)))
             {
                 var requirementPassed = CheckRequirements(user, target, interaction);
                 if (!requirementPassed)
@@ -238,7 +239,7 @@ public sealed partial class ErpPanelWindow : FancyWindow
 
     private Collapsible PrepareInteractionCategory(PanelInteractionCategoryPrototype categoryProto)
     {
-        var heading = new CollapsibleHeading(categoryProto.Name)
+        var heading = new CollapsibleHeading(Loc.GetString(categoryProto.Name))
         {
             ChevronMargin = new Thickness(10, 0),
             MinHeight = 32,
@@ -307,7 +308,7 @@ public sealed partial class ErpPanelWindow : FancyWindow
 
         var label = new Label()
         {
-            Text = interaction.Name,
+            Text = Loc.GetString(interaction.Name),
             Margin = new Thickness(40, 0, 0, 0)
         };
 
@@ -324,7 +325,7 @@ public sealed partial class ErpPanelWindow : FancyWindow
         if (string.IsNullOrEmpty(searchText))
             return true;
 
-        return interaction.Name.StartsWith(searchText, StringComparison.InvariantCultureIgnoreCase);
+        return Loc.GetString(interaction.Name).StartsWith(searchText, StringComparison.InvariantCultureIgnoreCase);
     }
 
     private bool CheckRequirements(EntityUid user, EntityUid target, PanelInteractionPrototype interaction)

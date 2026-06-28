@@ -76,11 +76,11 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
             var organPrefs = _erpPrefs.GetCached(userId, slot) ?? ErpOrganPreferences.Default();
             cfg = organPrefs.Organs.TryGetValue(slotId, out var saved)
                 ? saved
-                : new ErpOrganConfig { Variant = eroticComp?.DefaultVariants.GetValueOrDefault(slotId) ?? "human" };
+                : new ErpOrganConfig { Variant = GetDefaultVariant(eroticComp, slotId, ent.Comp) };
         }
         else
         {
-            cfg = new ErpOrganConfig { Variant = eroticComp?.DefaultVariants.GetValueOrDefault(slotId) ?? "human" };
+            cfg = new ErpOrganConfig { Variant = GetDefaultVariant(eroticComp, slotId, ent.Comp) };
         }
 
         visuals.Organs[slotId] = cfg;
@@ -117,8 +117,8 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
             }
             else
             {
-                // No saved preference: use species default variant if defined, otherwise generic default.
-                var defaultVariant = eroticComp?.DefaultVariants.GetValueOrDefault(slotId) ?? "human";
+                // No saved preference: use a valid species override if defined, otherwise the organ default.
+                var defaultVariant = GetDefaultVariant(eroticComp, slotId, organ.Comp1);
                 organs[slotId] = new ErpOrganConfig { Variant = defaultVariant };
             }
         }
@@ -130,4 +130,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         visuals.HideWhenFlaccid = eroticComp?.HideWhenFlaccid ?? [];
         Dirty(uid, visuals);
     }
+
+    private static string GetDefaultVariant(EroticOrgansComponent? organs, string slotId, EroticOrganComponent organ)
+        => ErpOrganEditorDefinitions.GetDefaultVariant(organs, slotId, organ);
 }

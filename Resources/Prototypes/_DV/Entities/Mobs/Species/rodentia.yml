@@ -193,8 +193,11 @@
     species: Rodentia
   - type: Inventory
     speciesId: rodentia
-  # Arcane-start: species default organ variant
+  # Arcane-start: species-specific organ prototypes
   - type: EroticOrgans
-    defaultVariants:
-      penis: tapered
+    groinMale:
+    - proto: OrganPenisRodentia
+      slot: penis
+    - proto: OrganTesticles
+      slot: testicles
   # Arcane-end

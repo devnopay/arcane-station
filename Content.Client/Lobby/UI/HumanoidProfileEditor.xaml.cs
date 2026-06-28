@@ -737,7 +737,7 @@ namespace Content.Client.Lobby.UI
                     return;
                 _erpOrganPrefs = prefs;
                 UpdateErpOrganSection();
-                _entManager.System<ErpOrganVisualsSystem>().RefreshPreview(PreviewDummy, prefs);
+                RefreshErpOrganPreview();
             };
             IoCManager.Resolve<ClientErpOrganPreferencesManager>().OnPreferencesReceived += _erpPrefsReceivedHandler;
             // Arcane-End
@@ -901,7 +901,13 @@ namespace Content.Client.Lobby.UI
                 _erpOrganPrefs = prefs;
                 _erpOrganPrefsDirty = true; // Arcane-edit
                 IsDirty = true;
-                _entManager.System<ErpOrganVisualsSystem>().RefreshPreview(PreviewDummy, prefs);
+                RefreshErpOrganPreview();
+            };
+
+            _erpOrganSection.OnPenisArousedPreviewChanged += aroused =>
+            {
+                _erpPenisArousedPreview = aroused;
+                RefreshErpOrganPreview();
             };
         }
 
@@ -910,13 +916,19 @@ namespace Content.Client.Lobby.UI
             if (_erpOrganSection == null || Profile == null)
                 return;
 
-            _erpOrganSection.SetSpecies(Profile.Species);
-            _erpOrganSection.SetSex(Profile.Sex);
-            _erpOrganSection.SetPreferences(_erpOrganPrefs);
+            _erpOrganSection.Update(Profile.Species, Profile.Sex, _erpOrganPrefs);
+            _erpOrganSection.SetPenisArousedPreview(_erpPenisArousedPreview);
         }
 
         private ErpOrganPreferences _erpOrganPrefs = ErpOrganPreferences.Default();
         private bool _erpOrganPrefsDirty; // Arcane-edit
+        private bool _erpPenisArousedPreview; // Arcane-edit
+
+        private void RefreshErpOrganPreview()
+        {
+            var phase = _erpPenisArousedPreview ? ArousalPhase.Aroused : ArousalPhase.Calm;
+            _entManager.System<ErpOrganVisualsSystem>().RefreshPreview(PreviewDummy, _erpOrganPrefs, CharacterSlot ?? 0, phase);
+        }
         // Arcane-End
 
         // Orion-Start
@@ -1420,7 +1432,7 @@ namespace Content.Client.Lobby.UI
             // Check and set the dirty flag to enable the save/reset buttons as appropriate.
             SetDirty();
 
-            _entManager.System<ErpOrganVisualsSystem>().RefreshPreview(PreviewDummy, _erpOrganPrefs); // Arcane-edit
+            RefreshErpOrganPreview(); // Arcane-edit
         }
 
         /// <summary>
@@ -1442,6 +1454,7 @@ namespace Content.Client.Lobby.UI
             CharacterSlot = slot;
             IsDirty = false;
             _erpOrganPrefsDirty = false; // Arcane-edit
+            _erpPenisArousedPreview = false; // Arcane-edit
             JobOverride = null;
 
             // Arcane-Start

@@ -139,6 +139,37 @@
     - Rodentia
 
 - type: panelInteraction
+  id: CockPussyFuck
+  category: Pussy
+  name: erp-interaction-cock-pussy-fuck
+  userArouse: 15
+  targetArouse: 20
+  range: 1
+  sounds:
+  - /Audio/_Arcane/Interactions/bang1.ogg
+  - /Audio/_Arcane/Interactions/bang2.ogg
+  - /Audio/_Arcane/Interactions/bang4.ogg
+  - /Audio/_Arcane/Interactions/bang5.ogg
+  - /Audio/_Arcane/Interactions/bang6.ogg
+  messages:
+  - входит членом в вагину $target.
+  - медленно проникает членом в вагину $target.
+  - ритмично двигает членом внутри вагины $target.
+  - прижимается к $target, трахая вагину членом.
+  - глубоко входит членом в вагину $target.
+  icon: _Arcane/Interface/ErpPanel/fuck_pussy.png
+  tags:
+  - RequiresERP
+  targetRequirements:
+  - !type:EroticOrganRequirement
+    organ: vagina
+    requireVisible: true
+  userRequirements:
+  - !type:EroticOrganRequirement
+    organ: penis
+    requireVisible: true
+
+- type: panelInteraction
   id: ToyPussy
   category: Pussy
   name: Использовать игрушку

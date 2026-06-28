@@ -59,55 +59,17 @@ public static class ErpOrganSlots
             [Breasts]   = [Sex.Female, Sex.Futanari],
         };
 
-    /// <summary>Available visual variants per slot. Slots not listed have no variant selector.</summary>
+    /// <summary>
+    /// Fallback variant list per slot, used only when the species entity cannot be resolved to an EroticOrgans
+    /// component. The canonical per-species variant set lives in the organ entity prototypes.
+    /// </summary>
     public static readonly IReadOnlyDictionary<string, string[]> Variants =
         new Dictionary<string, string[]>
         {
-            [Penis]     = ["human", "knotted", "barbknot", "flared", "tentacle", "hemi", "hemiknot", "tapered", "thick"],
             [Vagina]    = ["human", "gaping", "hairy", "spade"],
             [Testicles] = ["single", "sheath", "hidden"],
             [Anus]      = ["donut", "squished"],
         };
-
-    /// <summary>
-    /// Optional species whitelist per slot variant. Variants not listed here are available to every species.
-    /// </summary>
-    public static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string[]>> VariantSpeciesFilter =
-        new Dictionary<string, IReadOnlyDictionary<string, string[]>>
-        {
-            [Penis] = new Dictionary<string, string[]>
-            {
-                ["knotted"]  = ["Felinid", "Tajaran", "Vulpkanin", "Yowie", "Kobold", "Rodentia"],
-                ["barbknot"] = ["Felinid", "Tajaran"],
-                ["flared"]   = ["Reptilian", "Vox", "Harpy", "Resomi", "Kobold", "Arachnid"],
-                ["tentacle"] = ["Diona", "SlimePerson", "Demon", "HumanoidXeno"],
-                ["hemi"]     = ["Reptilian", "Kobold", "Vox", "HumanoidXeno"],
-                ["hemiknot"] = ["Reptilian", "Kobold", "Vox", "HumanoidXeno"],
-                ["tapered"]  = ["Reptilian", "Vox", "Harpy", "Resomi", "Kobold", "Arachnid"],
-            },
-        };
-
-    public static string[] GetVariantsForSpecies(string slotId, string species)
-    {
-        if (!Variants.TryGetValue(slotId, out var variants))
-            return [];
-
-        if (!VariantSpeciesFilter.TryGetValue(slotId, out var filters))
-            return variants;
-
-        var result = new List<string>();
-        foreach (var variant in variants)
-        {
-            if (!filters.TryGetValue(variant, out var allowedSpecies) ||
-                allowedSpecies.Length == 0 ||
-                Array.IndexOf(allowedSpecies, species) >= 0)
-            {
-                result.Add(variant);
-            }
-        }
-
-        return result.Count > 0 ? result.ToArray() : [variants[0]];
-    }
 
     /// <summary>Maximum size index per slot (slider range 1..N). Slots not listed have no size control.</summary>
     public static readonly IReadOnlyDictionary<string, int> MaxSize =

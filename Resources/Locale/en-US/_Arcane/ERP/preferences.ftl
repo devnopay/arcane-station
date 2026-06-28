@@ -1,6 +1,9 @@
+erp-interaction-cock-pussy-fuck = Fuck pussy
+
 erp-organ-section-title = ERP Organs
 erp-organ-size-label = Size:
 erp-organ-skin-color-label = Skin color
+erp-organ-penis-aroused-preview-label = Erect
 
 erp-preferences-tab-organ-penis = Penis
 erp-preferences-tab-organ-vagina = Vagina

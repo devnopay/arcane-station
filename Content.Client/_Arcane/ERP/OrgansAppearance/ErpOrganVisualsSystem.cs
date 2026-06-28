@@ -1,4 +1,5 @@
 using Content.Client._Arcane.ERP.Preferences;
+using Content.Client.Inventory;
 using Content.Client.Lobby;
 using Content.Shared._Arcane.ERP;
 using Content.Shared._Arcane.ERP.Organs;
@@ -29,9 +30,8 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
     // slot -> sprite draw order; lower values render below higher values.
     private readonly Dictionary<string, int> _slotDrawOrder = new();
     private readonly List<string> _orderedSlots = new();
-
-    // First clothing layer key in the humanoid sprite stack — organ layers insert before it.
-    private const string FirstClothingLayer = "underwear";
+    // preview entity → character slot index; set by RefreshPreview so OnPreviewProfileLoaded uses the correct slot.
+    private readonly Dictionary<EntityUid, int> _previewSlots = new();
 
     private ISawmill _log = default!;
 
@@ -87,7 +87,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         return fallback;
     }
 
-    public void RefreshPreview(EntityUid uid, ErpOrganPreferences prefs)
+    public void RefreshPreview(EntityUid uid, ErpOrganPreferences prefs, int slot, ArousalPhase phase = ArousalPhase.Calm)
     {
         if (!IsClientSide(uid))
             return;
@@ -95,11 +95,13 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         if (!TryComp<SpriteComponent>(uid, out var sprite))
             return;
 
+        _previewSlots[uid] = slot;
+
         var humanoid = CompOrNull<HumanoidAppearanceComponent>(uid);
         var visuals = EnsureComp<ErpOrganVisualsComponent>(uid);
         visuals.Organs = FilterOrgansBySex(prefs.Organs, humanoid?.Sex ?? Sex.Male);
 
-        ApplyOrganLayers((uid, visuals), humanoid, sprite);
+        ApplyOrganLayers((uid, visuals), humanoid, sprite, phase);
     }
 
     private void OnPreviewProfileLoaded(Entity<HumanoidAppearanceComponent> ent, ref ProfileLoadFinishedEvent args)
@@ -110,7 +112,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
         if (!HasComp<EroticOrgansComponent>(ent))
             return;
 
-        var slot = _prefs.Preferences?.SelectedCharacterIndex ?? 0;
+        var slot = _previewSlots.TryGetValue(ent, out var s) ? s : (_prefs.Preferences?.SelectedCharacterIndex ?? 0);
         var organPrefs = _erpPrefs.GetSlot(slot);
 
         var visuals = EnsureComp<ErpOrganVisualsComponent>(ent);
@@ -169,6 +171,8 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
 
     private void OnOrganShutdown(Entity<ErpOrganVisualsComponent> ent, ref ComponentShutdown args)
     {
+        _previewSlots.Remove(ent);
+
         if (!TryComp<SpriteComponent>(ent, out var sprite))
             return;
 
@@ -185,9 +189,10 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
     private void ApplyOrganLayers(
         Entity<ErpOrganVisualsComponent> ent,
         HumanoidAppearanceComponent? humanoid,
-        SpriteComponent sprite)
+        SpriteComponent sprite,
+        ArousalPhase? phaseOverride = null)
     {
-        var phase   = CompOrNull<ArousalComponent>(ent)?.CurrentPhase ?? ArousalPhase.Calm;
+        var phase = phaseOverride ?? CompOrNull<ArousalComponent>(ent)?.CurrentPhase ?? ArousalPhase.Calm;
         var species = humanoid?.Species ?? string.Empty;
 
         if (!OrganLayerOrderMatches(ent, sprite))
@@ -217,9 +222,9 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
                 continue;
             }
 
-            var rsiPath   = proto.Rsi;
+            var rsiPath = proto.Rsi;
             var stateName = ResolveStateName(proto, cfg, phase);
-            var visible   = !ent.Comp.CoveredSlots.Contains(slotId)
+            var visible = !ent.Comp.CoveredSlots.Contains(slotId)
                          && (!ent.Comp.HideWhenFlaccid.Contains(slotId) || phase >= ArousalPhase.Aroused);
 
             if (!_sprite.LayerMapTryGet((ent, sprite), layerKey, out var index, false))
@@ -240,9 +245,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
 
     private int? GetOrganLayerInsertIndex(Entity<ErpOrganVisualsComponent> ent, SpriteComponent sprite, string slotId)
     {
-        var insertIdx = _sprite.LayerMapTryGet((ent, sprite), FirstClothingLayer, out var clothingIdx, false)
-            ? clothingIdx
-            : (int?) null;
+        var insertIdx = GetFirstEquipmentLayerIndex(ent.Owner, sprite);
 
         var reachedSlot = false;
         foreach (var otherSlot in _orderedSlots)
@@ -276,9 +279,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
     private bool OrganLayerOrderMatches(Entity<ErpOrganVisualsComponent> ent, SpriteComponent sprite)
     {
         var previousIdx = -1;
-        var clothingLayer = _sprite.LayerMapTryGet((ent, sprite), FirstClothingLayer, out var clothingIdx, false)
-            ? clothingIdx
-            : (int?) null;
+        var clothingLayer = GetFirstEquipmentLayerIndex(ent.Owner, sprite);
 
         foreach (var slotId in _orderedSlots)
         {
@@ -310,6 +311,26 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
             _sprite.LayerSetVisible((ent, sprite), index, false);
             _sprite.RemoveLayer((ent, sprite), index);
         }
+    }
+
+    private int? GetFirstEquipmentLayerIndex(EntityUid uid, SpriteComponent sprite)
+    {
+        if (!TryComp<InventorySlotsComponent>(uid, out var inventorySlots))
+            return null;
+
+        int? firstIdx = null;
+        foreach (var layerKeys in inventorySlots.VisualLayerKeys.Values)
+        {
+            foreach (var layerKey in layerKeys)
+            {
+                if (!_sprite.LayerMapTryGet((uid, sprite), layerKey, out var idx, false))
+                    continue;
+
+                firstIdx = firstIdx.HasValue ? Math.Min(firstIdx.Value, idx) : idx;
+            }
+        }
+
+        return firstIdx;
     }
 
     private int CompareSlotsByDrawOrder(string left, string right)

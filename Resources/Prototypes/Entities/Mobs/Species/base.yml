@@ -614,7 +614,7 @@
     - proto: OrganButt
       slot: butt
     groinMale:
-    - proto: OrganPenis
+    - proto: OrganPenisHuman
       slot: penis
     - proto: OrganTesticles
       slot: testicles
@@ -624,7 +624,7 @@
     - proto: OrganUterus
       slot: uterus
     chestFemale:
-    - proto: OrganBreasts
+    - proto: OrganBreastsHuman
       slot: breasts
   # Arcane-end
 
