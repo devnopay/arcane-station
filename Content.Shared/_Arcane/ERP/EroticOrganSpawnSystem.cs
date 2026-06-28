@@ -63,9 +63,6 @@ public sealed class EroticOrganSpawnSystem : EntitySystem
 
     private void SpawnEroticOrgans(EntityUid uid, EroticOrgansComponent def, Sex sex)
     {
-        if (sex == Sex.Unsexed)
-            return;
-
         var groin = GetBodyPartOfType(uid, BodyPartType.Groin);
         var chest = GetBodyPartOfType(uid, BodyPartType.Chest);
 

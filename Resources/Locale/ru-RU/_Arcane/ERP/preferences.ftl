@@ -4,6 +4,7 @@ erp-organ-section-title = ERP Органы
 erp-organ-size-label = Размер:
 erp-organ-skin-color-label = Цвет кожи
 erp-organ-penis-aroused-preview-label = Эрекция
+erp-organ-reset-button = Сброс
 
 erp-preferences-tab-organ-penis = Пенис
 erp-preferences-tab-organ-vagina = Вагина

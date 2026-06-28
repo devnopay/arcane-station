@@ -121,9 +121,7 @@ public static class ErpOrganEditorDefinitions
         var result = new List<ErpOrganEditorDefinition>();
         foreach (var slotId in ErpOrganSlots.EditorVisible)
         {
-            var variants = string.IsNullOrEmpty(species)
-                ? ErpOrganSlots.Variants.GetValueOrDefault(slotId) ?? []
-                : ErpOrganSlots.GetVariantsForSpecies(slotId, species);
+            var variants = ErpOrganSlots.Variants.GetValueOrDefault(slotId) ?? [];
 
             result.Add(new ErpOrganEditorDefinition
             {

@@ -67,6 +67,7 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
 
         var visuals = EnsureComp<ErpOrganVisualsComponent>(args.Body);
         var eroticComp = CompOrNull<EroticOrgansComponent>(args.Body);
+        visuals.HideWhenFlaccid = GetHideWhenFlaccid(eroticComp);
 
         ErpOrganConfig cfg;
         if (TryComp<ActorComponent>(args.Body, out var actor))
@@ -127,10 +128,13 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
 
         var visuals = EnsureComp<ErpOrganVisualsComponent>(uid);
         visuals.Organs = organs;
-        visuals.HideWhenFlaccid = eroticComp?.HideWhenFlaccid ?? [];
+        visuals.HideWhenFlaccid = GetHideWhenFlaccid(eroticComp);
         Dirty(uid, visuals);
     }
 
     private static string GetDefaultVariant(EroticOrgansComponent? organs, string slotId, EroticOrganComponent organ)
         => ErpOrganEditorDefinitions.GetDefaultVariant(organs, slotId, organ);
+
+    private static HashSet<string> GetHideWhenFlaccid(EroticOrgansComponent? organs)
+        => organs == null ? [] : new HashSet<string>(organs.HideWhenFlaccid);
 }

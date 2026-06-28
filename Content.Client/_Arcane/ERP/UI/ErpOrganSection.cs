@@ -157,6 +157,15 @@ public sealed class ErpOrganSection : BoxContainer
                 row.AddChild(arousedPreview);
             }
 
+            var resetButton = new Button
+            {
+                Text = Loc.GetString("erp-organ-reset-button"),
+                MinWidth = 70,
+            };
+
+            resetButton.OnPressed += _ => ResetOrgan(slotId);
+            row.AddChild(resetButton);
+
             container.AddChild(row);
 
             // ── Row 2: color selector (hidden by default) ──────────────────
@@ -278,6 +287,26 @@ public sealed class ErpOrganSection : BoxContainer
         var color = !ctrl.Definition.AllowColor || ctrl.SkinCheck.Pressed ? (Color?) null : ctrl.ColorSelector.Color;
 
         _prefs.SetOrgan(slotId, new ErpOrganConfig { Variant = variant, Size = size, Color = color });
+        OnPreferencesChanged?.Invoke(_prefs);
+    }
+
+    private void ResetOrgan(string slotId)
+    {
+        if (!_organControls.TryGetValue(slotId, out var ctrl))
+            return;
+
+        _prefs.SetOrgan(slotId, ErpOrganEditorDefinitions.CreateDefaultConfig(ctrl.Definition));
+
+        _settingPreferences = true;
+        try
+        {
+            ApplyPreferences();
+        }
+        finally
+        {
+            _settingPreferences = false;
+        }
+
         OnPreferencesChanged?.Invoke(_prefs);
     }
 

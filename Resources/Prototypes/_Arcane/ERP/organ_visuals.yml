@@ -1,3 +1,6 @@
+# Draw order: lower values render behind higher values.
+# Chest visuals stay under groin visuals; penis is above vagina for futanari bodies.
+# Slots without shipped on-mob assets intentionally have no visual prototype yet.
 - type: erpOrganVisual
   id: BreastsHuman
   slot: breasts

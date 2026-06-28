@@ -104,6 +104,7 @@
   description: A xenomorph genital organ.
   components:
   - type: EroticOrgan
+    editorVisible: true
     editorMaxSize: 5
 
 # Internal gonads — no integrity display in health scanner.
@@ -197,4 +198,5 @@
   description: Xenomorph mammary glands.
   components:
   - type: EroticOrgan
+    editorVisible: true
     editorMaxSize: 3

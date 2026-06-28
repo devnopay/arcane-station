@@ -154,6 +154,7 @@
   - !type:EroticOrganRequirement
     organ: vagina
     requireVisible: true
+  - !type:ArousalRequirement
 
 - type: panelInteraction
   id: FaceDickSlap
@@ -178,6 +179,7 @@
   - !type:EroticOrganRequirement
     organ: penis
     requireVisible: true
+  - !type:ArousalRequirement
 
 - type: panelInteraction
   id: LegsSqueezeface
