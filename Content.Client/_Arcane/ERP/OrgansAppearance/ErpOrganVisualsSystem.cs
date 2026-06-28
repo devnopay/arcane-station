@@ -33,12 +33,9 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
     // preview entity → character slot index; set by RefreshPreview so OnPreviewProfileLoaded uses the correct slot.
     private readonly Dictionary<EntityUid, int> _previewSlots = new();
 
-    private ISawmill _log = default!;
-
     public override void Initialize()
     {
         base.Initialize();
-        _log = Logger.GetSawmill("erp.visuals.cl");
 
         BuildLookupTables();
         _proto.PrototypesReloaded += _ => BuildLookupTables();
@@ -137,12 +134,8 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
 
     private void OnOrganState(Entity<ErpOrganVisualsComponent> ent, ref AfterAutoHandleStateEvent args)
     {
-        _log.Debug($"OnOrganState {ent}, organs={ent.Comp.Organs.Count}, covered={ent.Comp.CoveredSlots.Count}");
         if (!TryComp<SpriteComponent>(ent, out var sprite))
-        {
-            _log.Debug($"{ent} — no SpriteComponent");
             return;
-        }
 
         ApplyOrganLayers(ent, CompOrNull<HumanoidAppearanceComponent>(ent), sprite);
     }
@@ -236,7 +229,6 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
                 _sprite.LayerMapSet((ent, sprite), layerKey, index);
             }
 
-            _log.Debug($"layer {slotId} state={stateName} visible={visible}");
             _sprite.LayerSetRsi((ent, sprite), index, new ResPath(rsiPath), stateName);
             _sprite.LayerSetColor((ent, sprite), index, cfg.Color ?? humanoid?.SkinColor ?? Color.FromHex("#C0967F"));
             _sprite.LayerSetVisible((ent, sprite), index, visible);

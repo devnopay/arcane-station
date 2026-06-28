@@ -5,7 +5,6 @@ using Content.Shared._Arcane.ErpPanel;
 using Content.Shared.Chat;
 using Content.Shared.Humanoid;
 using Content.Shared.IdentityManagement;
-using Content.Shared.Popups;
 using Content.Shared.Verbs;
 using Robust.Server.Audio;
 using Robust.Server.GameObjects;
@@ -22,7 +21,6 @@ public sealed partial class ErpPanelSystem : EntitySystem
 {
     [Dependency] private readonly SharedUserInterfaceSystem _ui = default!;
     [Dependency] private readonly InteractionSystem _interaction = default!;
-    [Dependency] private readonly SharedPopupSystem _popup = default!;
     [Dependency] private readonly IPrototypeManager _prototype = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly IGameTiming _ticking = default!;
@@ -114,16 +112,8 @@ public sealed partial class ErpPanelSystem : EntitySystem
         customArousal = Math.Clamp(customArousal, 0, 300);
         customMoaning = Math.Clamp(customMoaning, 0, 300);
 
-        if (interaction.TargetArouse > 0)
+        if (interaction.TargetArouse > 0 && _arousal.CanAddArousal(target))
         {
-            // Block if the target would receive arousal but is currently refractory.
-            if (!_arousal.CanAddArousal(target))
-            {
-                var key = user == target ? "erp-refractory-self" : "erp-refractory-target";
-                _popup.PopupEntity(Loc.GetString(key), target, user, PopupType.SmallCaution);
-                return;
-            }
-
             Spawn(_heartsProto, _transform.GetMapCoordinates(target));
             _arousal.AddArousal(target, interaction.TargetArouse * customArousal / 100);
             ProccessMoan(target, customMoaning);
@@ -140,14 +130,11 @@ public sealed partial class ErpPanelSystem : EntitySystem
 
         if (interaction.UserArouse > 0)
         {
-            if (!_arousal.CanAddArousal(user))
+            if (_arousal.CanAddArousal(user))
             {
-                _popup.PopupEntity(Loc.GetString("erp-refractory-self"), user, user, PopupType.SmallCaution);
-                return;
+                _arousal.AddArousal(user, interaction.UserArouse * customArousal / 100);
+                ProccessMoan(user, customMoaning);
             }
-
-            _arousal.AddArousal(user, interaction.UserArouse * customArousal / 100);
-            ProccessMoan(user, customMoaning);
         }
 
     }

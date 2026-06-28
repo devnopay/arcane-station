@@ -1,5 +1,3 @@
-erp-interaction-cock-pussy-fuck = Fuck pussy
-
 erp-organ-section-title = ERP Organs
 erp-organ-size-label = Size:
 erp-organ-skin-color-label = Skin color

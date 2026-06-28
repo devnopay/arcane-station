@@ -19,12 +19,9 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
     [Dependency] private readonly IServerPreferencesManager _prefs = default!;
     [Dependency] private readonly SharedBodySystem _body = default!;
 
-    private ISawmill _log = default!;
-
     public override void Initialize()
     {
         base.Initialize();
-        _log = Logger.GetSawmill("erp.visuals");
         SubscribeLocalEvent<PlayerAttachedEvent>(OnPlayerAttached);
         SubscribeLocalEvent<EroticOrgansComponent, EroticOrgansSpawnedEvent>(OnOrgansSpawned);
         SubscribeLocalEvent<EroticOrganComponent, OrganAddedToBodyEvent>(OnOrganAdded);
@@ -123,8 +120,6 @@ public sealed class ErpOrganVisualsSystem : EntitySystem
                 organs[slotId] = new ErpOrganConfig { Variant = defaultVariant };
             }
         }
-
-        _log.Debug($"{uid} — {organs.Count} organs present, {organPrefs.Organs.Count} prefs");
 
         var visuals = EnsureComp<ErpOrganVisualsComponent>(uid);
         visuals.Organs = organs;

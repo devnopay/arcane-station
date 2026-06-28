@@ -1,6 +1,5 @@
 using Content.Shared._Arcane.ErpPanel.Requirements;
 using Robust.Shared.Audio;
-using Robust.Shared.Localization;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
 
@@ -19,9 +18,6 @@ public sealed partial class PanelInteractionPrototype : IPrototype
 
     [DataField(required: true)]
     public ProtoId<PanelInteractionCategoryPrototype> Category;
-
-    [DataField(required: true)]
-    public LocId Name;
 
     [DataField]
     public List<string> Messages = new();
@@ -62,7 +58,4 @@ public sealed partial class PanelInteractionCategoryPrototype : IPrototype
 {
     [IdDataField]
     public string ID { get; private set; } = default!;
-
-    [DataField(required: true)]
-    public LocId Name;
 }
