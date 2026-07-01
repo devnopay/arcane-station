@@ -116,8 +116,6 @@ public sealed class QueueTimeLeaderboardControl : BoxContainer
     private readonly List<QueueWaitEntry> _queueWaitTimes = [];
     private readonly List<(Label Name, Label Time)> _queueRows = [];
 
-    private float _elapsedSeconds;
-    private float _lastQueueUpdateSeconds;
     private float _refreshTimer;
     private string _yourName = string.Empty;
     private bool _hasQueueRows;
@@ -154,7 +152,6 @@ public sealed class QueueTimeLeaderboardControl : BoxContainer
         if (!VisibleInTree || !_hasQueueRows)
             return;
 
-        _elapsedSeconds += args.DeltaSeconds;
         _refreshTimer -= args.DeltaSeconds;
         if (_refreshTimer > 0f)
             return;
@@ -175,7 +172,6 @@ public sealed class QueueTimeLeaderboardControl : BoxContainer
             _queueWaitTimes.Add(new QueueWaitEntry(name, waitSeconds, i));
         }
 
-        _lastQueueUpdateSeconds = _elapsedSeconds;
         if (!_hasQueueRows)
         {
             _hasQueueRows = true;
@@ -186,9 +182,8 @@ public sealed class QueueTimeLeaderboardControl : BoxContainer
 
     private void RefreshQueueRows()
     {
-        var localElapsedSinceUpdate = _elapsedSeconds - _lastQueueUpdateSeconds;
         var rankedPlayers = _queueWaitTimes
-            .OrderByDescending(entry => entry.WaitSeconds + localElapsedSinceUpdate)
+            .OrderByDescending(entry => entry.WaitSeconds)
             .ThenBy(entry => entry.QueueIndex)
             .Take(MaxQueueRows)
             .ToArray();
@@ -209,7 +204,7 @@ public sealed class QueueTimeLeaderboardControl : BoxContainer
                 : entry.Name;
 
             nameLabel.Text = $"{i + 1}. {displayName}";
-            timeLabel.Text = FormatQueueTime(entry.WaitSeconds + localElapsedSinceUpdate);
+            timeLabel.Text = FormatQueueTime(entry.WaitSeconds);
         }
     }
 
