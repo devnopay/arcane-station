@@ -5,6 +5,7 @@ using System.IO;
 
 namespace Content.Shared._Arcane.JoinQueue;
 
+// Порядок значений — часть сетевого протокола (см. QueueMiniGameScoreMessage). Новые игры добавлять только в конец.
 public enum QueueMiniGameKind : byte
 {
     Gyruss,
