@@ -48,7 +48,11 @@ public sealed class GyrussControl : Control, IQueueMiniGameScoreSource
     {
         IoCManager.InjectDependencies(this);
 
-        _sprites = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+    [Dependency] private readonly IInputManager _input = default!;
+    [Dependency] private readonly IResourceCache _cache = default!;
+    [Dependency] private readonly IEntityManager _entMan = default!;
+...
+        _sprites = _entMan.System<SpriteSystem>();
         _font = QueueMiniGameAssets.LoadRegularFont(_cache, 12);
         _fontBig = QueueMiniGameAssets.LoadBoldFont(_cache, 18);
         _spacepodTexture = QueueMiniGameAssets.LoadSpacepodTexture(_cache);
