@@ -195,3 +195,4 @@
   components:
   - type: StorageFill
     contents:
+      - id: TeslaGroundingRodFlatpack
