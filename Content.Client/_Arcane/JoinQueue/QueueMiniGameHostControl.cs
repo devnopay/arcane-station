@@ -21,6 +21,9 @@ public sealed class QueueMiniGameHostControl : BoxContainer
 
     private static readonly Random Random = new();
     private static readonly QueueMiniGameKind[] MiniGameKinds = Enum.GetValues<QueueMiniGameKind>();
+    private static readonly Vector2 GameCanvasSize = new(
+        MathF.Max(GyrussGame.GameW, MathF.Max(GoGoShitcurityGame.GameW, SpaceInvadersGame.GameW)),
+        MathF.Max(GyrussGame.GameH, MathF.Max(GoGoShitcurityGame.GameH, SpaceInvadersGame.GameH)));
 
     private const float MinLoadSeconds = 3f;
     private const float MaxLoadSeconds = 5f;
@@ -58,8 +61,6 @@ public sealed class QueueMiniGameHostControl : BoxContainer
     public QueueMiniGameHostControl()
     {
         IoCManager.InjectDependencies(this);
-        var hostW = MathF.Max(GyrussGame.GameW, MathF.Max(GoGoShitcurityGame.GameW, SpaceInvadersGame.GameW));
-        var hostH = MathF.Max(GyrussGame.GameH, MathF.Max(GoGoShitcurityGame.GameH, SpaceInvadersGame.GameH));
 
         Orientation = LayoutOrientation.Vertical;
         SeparationOverride = 4;
@@ -87,7 +88,7 @@ public sealed class QueueMiniGameHostControl : BoxContainer
         {
             Orientation = LayoutOrientation.Horizontal,
             SeparationOverride = 0,
-            MinWidth = hostW,
+            MinWidth = GameCanvasSize.X,
             Margin = new Thickness(0, 2, 0, 0),
         };
 
@@ -128,7 +129,7 @@ public sealed class QueueMiniGameHostControl : BoxContainer
         // Game canvas
         _gameHolder = new Control
         {
-            MinSize = new Vector2(hostW, hostH),
+            MinSize = GameCanvasSize,
             HorizontalAlignment = HAlignment.Center,
         };
         AddChild(_gameHolder);
@@ -349,6 +350,7 @@ public sealed class QueueMiniGameHostControl : BoxContainer
 
     protected override void ExitedTree()
     {
+        ClearCurrentControl();
         base.ExitedTree();
         _musicSource?.StopPlaying();
         _musicSource?.Dispose();
@@ -369,15 +371,13 @@ public sealed class QueueMiniGameHostControl : BoxContainer
 
     private static Label MakeLoadingLabel()
     {
-        var w = MathF.Max(GyrussGame.GameW, MathF.Max(GoGoShitcurityGame.GameW, SpaceInvadersGame.GameW));
-        var h = MathF.Max(GyrussGame.GameH, MathF.Max(GoGoShitcurityGame.GameH, SpaceInvadersGame.GameH));
         return new Label
         {
             Text = Loc.GetString("queue-minigame-loading"),
             Align = Label.AlignMode.Center,
             VerticalAlignment = VAlignment.Center,
             HorizontalAlignment = HAlignment.Center,
-            MinSize = new Vector2(w, h),
+            MinSize = GameCanvasSize,
         };
     }
 

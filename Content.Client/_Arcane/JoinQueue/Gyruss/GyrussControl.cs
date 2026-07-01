@@ -4,6 +4,7 @@ using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Graphics.RSI;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
@@ -15,6 +16,7 @@ public sealed class GyrussControl : Control, IQueueMiniGameScoreSource
 {
     [Dependency] private readonly IInputManager _input = default!;
     [Dependency] private readonly IResourceCache _cache = default!;
+    [Dependency] private readonly IEntityManager _entMan = default!;
 
     private readonly GyrussGame _game = new();
     private readonly (float X, float Y, float Size)[] _stars;
@@ -48,19 +50,15 @@ public sealed class GyrussControl : Control, IQueueMiniGameScoreSource
     {
         IoCManager.InjectDependencies(this);
 
-    [Dependency] private readonly IInputManager _input = default!;
-    [Dependency] private readonly IResourceCache _cache = default!;
-    [Dependency] private readonly IEntityManager _entMan = default!;
-...
         _sprites = _entMan.System<SpriteSystem>();
         _font = QueueMiniGameAssets.LoadRegularFont(_cache, 12);
         _fontBig = QueueMiniGameAssets.LoadBoldFont(_cache, 18);
         _spacepodTexture = QueueMiniGameAssets.LoadSpacepodTexture(_cache);
 
-        _enemySprites[0] = LoadState("Mobs/Aliens/Carps/space.rsi", "alive");
-        _enemySprites[1] = LoadState("Mobs/Aliens/Carps/magic.rsi", "alive");
-        _enemySprites[2] = LoadState("Mobs/Aliens/Carps/sharkminnow.rsi", "alive");
-        _portalSprite = LoadState("Effects/portal.rsi", "portal-artifact");
+        _enemySprites[0] = LoadState(QueueMiniGameAssets.SpaceCarpRsi, "alive");
+        _enemySprites[1] = LoadState(QueueMiniGameAssets.MagicCarpRsi, "alive");
+        _enemySprites[2] = LoadState(QueueMiniGameAssets.SharkminnowRsi, "alive");
+        _portalSprite = LoadState(QueueMiniGameAssets.PortalRsi, "portal-artifact");
 
         _game.OnShoot = () => BulletFired?.Invoke();
         _game.OnEnemyKilled = (x, y) =>
@@ -145,7 +143,6 @@ public sealed class GyrussControl : Control, IQueueMiniGameScoreSource
         var gh = GyrussGame.GameH;
 
         handle.DrawRect(new UIBox2(0, 0, gw, gh), ColorBg);
-        QueueMiniGameDrawHelpers.DrawSpaceBackdrop(handle, gw, gh, _portalTime);
         DrawStars(handle);
         DrawPortal(handle);
         DrawRing(handle, GyrussGame.PlayerRadius, new Color(55, 80, 120, 35));

@@ -39,6 +39,8 @@ public sealed class QueueUpdateMessage : NetMessage
 
     // Arcane-edit-start
     public List<float> PlayerWaitSeconds { get; set; } = new();
+    public List<string> QueueWaitLeaderboardNames { get; set; } = new();
+    public List<float> QueueWaitLeaderboardSeconds { get; set; } = new();
     public List<QueueMiniGameLeaderboardEntry> MiniGameLeaderboard { get; set; } = new();
     // Arcane-edit-end
     public override void ReadFromBuffer(NetIncomingMessage buffer, IRobustSerializer serializer)
@@ -68,6 +70,20 @@ public sealed class QueueUpdateMessage : NetMessage
             PlayerNames.Add(buffer.ReadString());
             PlayerWaitSeconds.Add(buffer.ReadFloat()); // Arcane-edit
         }
+
+        // Arcane-edit-start
+        var waitLeaderboardCount = buffer.ReadInt32();
+        if (waitLeaderboardCount < 0 || waitLeaderboardCount > MaxQueuePlayerEntries)
+            throw new InvalidDataException("Queue wait leaderboard count out of range.");
+
+        QueueWaitLeaderboardNames = new List<string>(waitLeaderboardCount);
+        QueueWaitLeaderboardSeconds = new List<float>(waitLeaderboardCount);
+        for (var i = 0; i < waitLeaderboardCount; i++)
+        {
+            QueueWaitLeaderboardNames.Add(buffer.ReadString());
+            QueueWaitLeaderboardSeconds.Add(buffer.ReadFloat());
+        }
+        // Arcane-edit-end
 
         var leaderboardCount = buffer.ReadInt32();
 
@@ -104,17 +120,28 @@ public sealed class QueueUpdateMessage : NetMessage
         buffer.Write(RoundDurationMinutes);
 
         buffer.Write(YourName);
-        buffer.Write(PlayerNames.Count);
         // Arcane-edit-start
-        for (var i = 0; i < PlayerNames.Count; i++)
+        var playerCount = Math.Min(Math.Min(PlayerNames.Count, PlayerWaitSeconds.Count), MaxQueuePlayerEntries);
+        buffer.Write(playerCount);
+        for (var i = 0; i < playerCount; i++)
         {
             buffer.Write(PlayerNames[i]);
-            buffer.Write(i < PlayerWaitSeconds.Count ? PlayerWaitSeconds[i] : 0f);
+            buffer.Write(PlayerWaitSeconds[i]);
         }
 
-        buffer.Write(MiniGameLeaderboard.Count);
-        foreach (var entry in MiniGameLeaderboard)
+        var waitLeaderboardCount = Math.Min(Math.Min(QueueWaitLeaderboardNames.Count, QueueWaitLeaderboardSeconds.Count), MaxQueuePlayerEntries);
+        buffer.Write(waitLeaderboardCount);
+        for (var i = 0; i < waitLeaderboardCount; i++)
         {
+            buffer.Write(QueueWaitLeaderboardNames[i]);
+            buffer.Write(QueueWaitLeaderboardSeconds[i]);
+        }
+
+        var miniGameLeaderboardCount = Math.Min(MiniGameLeaderboard.Count, MaxMiniGameLeaderboardEntries);
+        buffer.Write(miniGameLeaderboardCount);
+        for (var i = 0; i < miniGameLeaderboardCount; i++)
+        {
+            var entry = MiniGameLeaderboard[i];
             buffer.Write((byte) entry.Game);
             buffer.Write(entry.PlayerName);
             buffer.Write(entry.Score);

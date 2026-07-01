@@ -58,10 +58,6 @@ internal static class QueueMiniGameDrawHelpers
         handle.DrawString(font, new Vector2((gameWidth - width) / 2f, topY + font.GetAscent(1f)), text, color);
     }
 
-    public static void DrawSpaceBackdrop(DrawingHandleScreen handle, float width, float height, float time)
-    {
-    }
-
     public static void DrawArcadeFrame(DrawingHandleScreen handle, float width, float height, float time)
     {
         var pulse = 0.55f + MathF.Sin(time * 4.5f) * 0.18f;

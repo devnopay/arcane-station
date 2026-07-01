@@ -63,7 +63,7 @@ public sealed partial class QueueGui : Control
         CritterWalk.UpdateCritters(msg.PlayerNames, msg.YourName);
         // Arcane-edit-start
         MiniGameLeaderboard.UpdateGameLeaderboard(msg.MiniGameLeaderboard);
-        QueueTimeLeaderboard.UpdateQueuePlayers(msg.PlayerNames, msg.PlayerWaitSeconds, msg.YourName);
+        QueueTimeLeaderboard.UpdateQueuePlayers(msg.QueueWaitLeaderboardNames, msg.QueueWaitLeaderboardSeconds, msg.YourName);
         // Arcane-edit-end
     }
 }

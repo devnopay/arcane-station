@@ -4,6 +4,7 @@ using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Graphics.RSI;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
@@ -15,6 +16,7 @@ public sealed class SpaceInvadersControl : Control, IQueueMiniGameScoreSource
 {
     [Dependency] private readonly IInputManager _input = default!;
     [Dependency] private readonly IResourceCache _cache = default!;
+    [Dependency] private readonly IEntityManager _entMan = default!;
 
     private readonly SpaceInvadersGame _game = new();
     private readonly (float X, float Y, float Speed, float Size)[] _stars;
@@ -48,15 +50,15 @@ public sealed class SpaceInvadersControl : Control, IQueueMiniGameScoreSource
     {
         IoCManager.InjectDependencies(this);
 
-        _sprites = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+        _sprites = _entMan.System<SpriteSystem>();
         _font = QueueMiniGameAssets.LoadRegularFont(_cache, 12);
         _fontBig = QueueMiniGameAssets.LoadBoldFont(_cache, 18);
         _spacepodTexture = QueueMiniGameAssets.LoadSpacepodTexture(_cache);
 
-        _crawlerSprites[0] = LoadState("Mobs/Aliens/Carps/space.rsi", "alive");
-        _crawlerSprites[1] = LoadState("Mobs/Aliens/Carps/magic.rsi", "alive");
-        _crawlerSprites[2] = LoadState("Mobs/Aliens/Carps/sharkminnow.rsi", "alive");
-        _coreSprite = LoadState("Mobs/Aliens/Carps/dragon.rsi", "alive");
+        _crawlerSprites[0] = LoadState(QueueMiniGameAssets.SpaceCarpRsi, "alive");
+        _crawlerSprites[1] = LoadState(QueueMiniGameAssets.MagicCarpRsi, "alive");
+        _crawlerSprites[2] = LoadState(QueueMiniGameAssets.SharkminnowRsi, "alive");
+        _coreSprite = LoadState(QueueMiniGameAssets.DragonCarpRsi, "alive");
 
         _game.OnShoot = () => BulletFired?.Invoke();
         _game.OnEnemyKilled = (x, y) =>
@@ -141,7 +143,6 @@ public sealed class SpaceInvadersControl : Control, IQueueMiniGameScoreSource
         var gh = SpaceInvadersGame.GameH;
 
         handle.DrawRect(new UIBox2(0, 0, gw, gh), ColorBg);
-        QueueMiniGameDrawHelpers.DrawSpaceBackdrop(handle, gw, gh, _starScroll);
         DrawStars(handle, gw, gh);
         handle.DrawRect(new UIBox2(0, SpaceInvadersGame.GroundY, gw, SpaceInvadersGame.GroundY + 2f), ColorGround);
 

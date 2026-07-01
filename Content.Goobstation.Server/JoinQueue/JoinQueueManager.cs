@@ -59,6 +59,7 @@ public sealed class JoinQueueManager : IJoinQueueManager
     // Arcane-edit-start
     private readonly Dictionary<NetUserId, string> _miniGamePlayerNames = new();
     private readonly Dictionary<NetUserId, QueueWaitRecord> _queueWaitRecords = new();
+    private readonly Dictionary<NetUserId, float> _queueWaitOffsets = new();
     private int _queueWaitRecordOrder;
     // Arcane-edit-end
 
@@ -185,13 +186,15 @@ public sealed class JoinQueueManager : IJoinQueueManager
                 var graceSeconds = _configuration.GetCVar(GoobCVars.QueueReconnectGraceSeconds);
                 if (graceSeconds > 0)
                 {
+                    var accumulatedWaitSeconds = GetQueueWaitSeconds(e.Session, DateTime.UtcNow); // Arcane-edit
                     _reservations[e.Session.UserId] = new QueueReservation(
                         DateTime.UtcNow,
                         wasInPatronQueue ? oldPatronPosition : oldPosition,
-                        wasInPatronQueue);
+                        wasInPatronQueue,
+                        accumulatedWaitSeconds);
                 }
 
-                QueueTimings.WithLabels("Unwaited").Observe((DateTime.UtcNow - e.Session.ConnectedTime).TotalSeconds);
+                QueueTimings.WithLabels("Unwaited").Observe(GetQueueWaitSeconds(e.Session, DateTime.UtcNow)); // Arcane-edit
             }
 
             if (!wasInQueue && !wasInPatronQueue && e.OldStatus != SessionStatus.InGame) // Arcane-edit
@@ -249,6 +252,7 @@ public sealed class JoinQueueManager : IJoinQueueManager
                     queue.Insert(Math.Min(reservation.QueuePosition, queue.Count), session);
                 }
 
+                _queueWaitOffsets[session.UserId] = reservation.AccumulatedWaitSeconds;
                 _queuedSessions[session.UserId] = session;
                 ProcessQueue();
                 return;
@@ -285,10 +289,10 @@ public sealed class JoinQueueManager : IJoinQueueManager
             _queuedSessions.Remove(session.UserId);
             // Arcane-edit-end
             UpdateQueueWaitRecord(session, DateTime.UtcNow); // Arcane-edit
+            var waitSeconds = GetQueueWaitSeconds(session, DateTime.UtcNow); // Arcane-edit
             RecordWaitTime(session);
             SendToGame(session);
-            QueueTimings.WithLabels("Waited")
-                .Observe((DateTime.UtcNow - session.ConnectedTime).TotalSeconds); // Arcane-edit
+            QueueTimings.WithLabels("Waited").Observe(waitSeconds); // Arcane-edit
             players++;
         }
 
@@ -299,7 +303,7 @@ public sealed class JoinQueueManager : IJoinQueueManager
 
     private void RecordWaitTime(ICommonSession session)
     {
-        var waitSeconds = (DateTime.UtcNow - session.ConnectedTime).TotalSeconds;
+        var waitSeconds = GetQueueWaitSeconds(session, DateTime.UtcNow); // Arcane-edit
         _recentWaitTimes.Enqueue(waitSeconds);
         while (_recentWaitTimes.Count > MaxWaitTimeSamples)
             _recentWaitTimes.Dequeue();
@@ -340,21 +344,31 @@ public sealed class JoinQueueManager : IJoinQueueManager
         var maxPlayerCount = _configuration.GetCVar(CCVars.SoftMaxPlayers);
         // Arcane-edit-start
         var miniGameLeaderboard = BuildMiniGameLeaderboard();
+        var playerNames = new List<string>(totalInQueue);
+        var playerWaitSeconds = new List<float>(totalInQueue);
 
         var now = DateTime.UtcNow;
         foreach (var session in _patronQueue)
+        {
             UpdateQueueWaitRecord(session, now);
+            playerNames.Add(session.Name);
+            playerWaitSeconds.Add(GetQueueWaitSeconds(session, now));
+        }
 
         foreach (var session in _queue)
+        {
             UpdateQueueWaitRecord(session, now);
+            playerNames.Add(session.Name);
+            playerWaitSeconds.Add(GetQueueWaitSeconds(session, now));
+        }
 
         var queueWaitLeaderboard = BuildQueueWaitLeaderboard();
-        var playerNames = new List<string>(queueWaitLeaderboard.Count);
-        var playerWaitSeconds = new List<float>(queueWaitLeaderboard.Count);
+        var queueWaitNames = new List<string>(queueWaitLeaderboard.Count);
+        var queueWaitSeconds = new List<float>(queueWaitLeaderboard.Count);
         foreach (var entry in queueWaitLeaderboard)
         {
-            playerNames.Add(entry.Name);
-            playerWaitSeconds.Add(entry.WaitSeconds);
+            queueWaitNames.Add(entry.Name);
+            queueWaitSeconds.Add(entry.WaitSeconds);
         }
         // Arcane-edit-end
 
@@ -375,6 +389,8 @@ public sealed class JoinQueueManager : IJoinQueueManager
                 PlayerNames = playerNames,
                 // Arcane-edit-start
                 PlayerWaitSeconds = playerWaitSeconds,
+                QueueWaitLeaderboardNames = queueWaitNames,
+                QueueWaitLeaderboardSeconds = queueWaitSeconds,
                 MiniGameLeaderboard = miniGameLeaderboard,
                 // Arcane-edit-end
             });
@@ -397,6 +413,8 @@ public sealed class JoinQueueManager : IJoinQueueManager
                 PlayerNames = playerNames,
                 // Arcane-edit-start
                 PlayerWaitSeconds = playerWaitSeconds,
+                QueueWaitLeaderboardNames = queueWaitNames,
+                QueueWaitLeaderboardSeconds = queueWaitSeconds,
                 MiniGameLeaderboard = miniGameLeaderboard,
                 // Arcane-edit-end
             });
@@ -428,7 +446,10 @@ public sealed class JoinQueueManager : IJoinQueueManager
         }
 
         if (oldScore >= score)
+        {
+            scores[message.Game] = new MiniGameScoreState(oldScore, now);
             return;
+        }
 
         scores[message.Game] = new MiniGameScoreState(score, now);
         if (!_miniGameLeaderboardDirty)
@@ -472,7 +493,7 @@ public sealed class JoinQueueManager : IJoinQueueManager
 
     private void UpdateQueueWaitRecord(ICommonSession session, DateTime now)
     {
-        var waitSeconds = (float) (now - session.ConnectedTime).TotalSeconds;
+        var waitSeconds = (float) GetQueueWaitSeconds(session, now);
         if (_queueWaitRecords.TryGetValue(session.UserId, out var record))
         {
             _queueWaitRecords[session.UserId] = record with
@@ -484,6 +505,12 @@ public sealed class JoinQueueManager : IJoinQueueManager
         }
 
         _queueWaitRecords[session.UserId] = new QueueWaitRecord(session.Name, waitSeconds, _queueWaitRecordOrder++);
+    }
+
+    private double GetQueueWaitSeconds(ICommonSession session, DateTime now)
+    {
+        var waitSeconds = (now - session.ConnectedTime).TotalSeconds;
+        return waitSeconds + _queueWaitOffsets.GetValueOrDefault(session.UserId);
     }
 
     private List<QueueWaitRecord> BuildQueueWaitLeaderboard()
@@ -516,12 +543,13 @@ public sealed class JoinQueueManager : IJoinQueueManager
     {
         // Arcane-edit-start
         _queuedSessions.Remove(session.UserId);
+        _queueWaitOffsets.Remove(session.UserId);
         // Arcane-edit-end
         Timer.Spawn(0, () => _player.JoinGame(session));
     }
 
     // Arcane-edit-start
-    private sealed record QueueReservation(DateTime DisconnectTime, int QueuePosition, bool IsPatron);
+    private sealed record QueueReservation(DateTime DisconnectTime, int QueuePosition, bool IsPatron, float AccumulatedWaitSeconds);
 
     private readonly record struct MiniGameScoreState(int Score, TimeSpan LastUpdateTime);
 

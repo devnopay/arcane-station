@@ -2,6 +2,7 @@ using System.Numerics;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Client.UserInterface.Controls;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Graphics.RSI;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
@@ -45,15 +46,17 @@ public sealed partial class QueueCritterWalk : LayoutContainer
     private const float OffScreenSpawn = -SpriteDisplaySize;
 
     private readonly Dictionary<string, Critter> _critters = [];
-    private readonly IRobustRandom _random;
-    private readonly SpriteSystem _spriteSystem;
+    [Dependency] private readonly IRobustRandom _random = default!;
+    [Dependency] private readonly IEntityManager _entManager = default!;
+
+    private SpriteSystem _spriteSystem = default!;
 
     private int _totalPlayers;
 
     public QueueCritterWalk()
     {
-        _random = IoCManager.Resolve<IRobustRandom>();
-        _spriteSystem = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+        IoCManager.InjectDependencies(this);
+        _spriteSystem = _entManager.System<SpriteSystem>();
         InheritChildMeasure = false;
         HorizontalExpand = true;
         MinHeight = ControlHeight;

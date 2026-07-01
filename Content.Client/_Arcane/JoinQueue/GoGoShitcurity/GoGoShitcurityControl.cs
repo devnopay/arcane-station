@@ -4,6 +4,7 @@ using Robust.Client.Graphics;
 using Robust.Client.Input;
 using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface;
+using Robust.Shared.GameObjects;
 using Robust.Shared.Graphics.RSI;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
@@ -15,6 +16,7 @@ public sealed class GoGoShitcurityControl : Control, IQueueMiniGameScoreSource
 {
     [Dependency] private readonly IInputManager _input = default!;
     [Dependency] private readonly IResourceCache _cache = default!;
+    [Dependency] private readonly IEntityManager _entMan = default!;
 
     private readonly GoGoShitcurityGame _game = new();
     private readonly List<MiniGameParticle> _particles = [];
@@ -58,7 +60,7 @@ public sealed class GoGoShitcurityControl : Control, IQueueMiniGameScoreSource
     {
         IoCManager.InjectDependencies(this);
 
-        _sprites = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<SpriteSystem>();
+        _sprites = _entMan.System<SpriteSystem>();
         _font = QueueMiniGameAssets.LoadRegularFont(_cache, 12);
         _fontBig = QueueMiniGameAssets.LoadBoldFont(_cache, 18);
 
@@ -164,7 +166,6 @@ public sealed class GoGoShitcurityControl : Control, IQueueMiniGameScoreSource
         var gh = GoGoShitcurityGame.GameH;
 
         handle.DrawRect(new UIBox2(0, 0, gw, gh), ColorBg);
-        QueueMiniGameDrawHelpers.DrawSpaceBackdrop(handle, gw, gh, _starScrollX / 40f);
         DrawStars(handle, gw, gh);
 
         if (_started)
