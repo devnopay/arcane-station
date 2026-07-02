@@ -219,23 +219,19 @@ public sealed class JoinQueueManager : IJoinQueueManager
         var currentOnline = _player.PlayerCount - 1 - _bypassUsers.Count;
         var haveFreeSlot = currentOnline < _configuration.GetCVar(CCVars.SoftMaxPlayers);
 
-        if (haveFreeSlot) // Arcane-edit
+        if (isPrivileged || haveFreeSlot)
         {
             SendToGame(session);
             _reservations.Remove(session.UserId);
-            return;
-        }
 
-        // Arcane-edit-start
-        if (isPrivileged && !_patreonIsEnabled)
-        {
-            _reservations.Remove(session.UserId);
-            SendToGame(session);
-            _bypassUsers.Add(session.UserId);
-            QueueBypassCount.Inc();
+            if (isPrivileged && !haveFreeSlot)
+            {
+                _bypassUsers.Add(session.UserId);
+                QueueBypassCount.Inc();
+            }
+
             return;
         }
-        // Arcane-edit-end
 
         if (_reservations.Remove(session.UserId, out var reservation))
         {
@@ -261,18 +257,8 @@ public sealed class JoinQueueManager : IJoinQueueManager
 
         _queueWaitOffsets.Remove(session.UserId); // Arcane-edit
 
-        // Arcane-edit-start
-        if (isPrivileged && _patreonIsEnabled)
-        {
-            _patronQueue.Add(session);
-            _queuedSessions[session.UserId] = session;
-            ProcessQueue();
-            return;
-        }
-
         _queue.Add(session);
         _queuedSessions[session.UserId] = session;
-        // Arcane-edit-end
         ProcessQueue();
     }
 
