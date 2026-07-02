@@ -36,7 +36,7 @@
     back: ClothingBackpackERTSecurity
     shoes: ClothingShoesClown
     head: ClothingHeadHelmetERTSecurity
-#   neck: ExecutiveIDCard # Arcane-Edits
+#   neck: ExecutiveIDCard # Arcane-Edit
     mask: ClothingMaskClownUnremoveable
     eyes: ClothingEyesGlassesSecurity
     gloves: ClothingHandsGlovesCombat
