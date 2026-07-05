@@ -1,6 +1,7 @@
 using System.Numerics;
 using Content.Goobstation.Common.JoinQueue;
 using Content.Server.GameTicking;
+using Content.Server.Preferences.Managers;
 using Content.Shared.Ghost;
 using Robust.Server.Player;
 using Robust.Shared.Enums;
@@ -11,12 +12,13 @@ namespace Content.Server._Arcane.AfkKick;
 
 public sealed class AfkKickSystem : EntitySystem
 {
-    private static readonly TimeSpan KickDelay = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan KickDelay = TimeSpan.FromMinutes(20);
     private static readonly TimeSpan UpdateInterval = TimeSpan.FromSeconds(10);
 
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly IPlayerManager _playerManager = default!;
     [Dependency] private readonly IJoinQueueManager _joinQueue = default!;
+    [Dependency] private readonly IServerPreferencesManager _preferences = default!;
 
     private readonly Dictionary<ICommonSession, TimeSpan> _lobbySince = new();
     private readonly Dictionary<ICommonSession, GhostAfkState> _ghostStates = new();
@@ -34,6 +36,7 @@ public sealed class AfkKickSystem : EntitySystem
 
         SubscribeLocalEvent<PlayerJoinedLobbyEvent>(OnPlayerJoinedLobby);
         _playerManager.PlayerStatusChanged += OnPlayerStatusChanged;
+        _preferences.CharacterProfileSaved += OnCharacterProfileSaved;
     }
 
     public override void Shutdown()
@@ -41,6 +44,7 @@ public sealed class AfkKickSystem : EntitySystem
         base.Shutdown();
 
         _playerManager.PlayerStatusChanged -= OnPlayerStatusChanged;
+        _preferences.CharacterProfileSaved -= OnCharacterProfileSaved;
         _lobbySince.Clear();
         _ghostStates.Clear();
     }
@@ -95,6 +99,16 @@ public sealed class AfkKickSystem : EntitySystem
     {
         _lobbySince[args.PlayerSession] = _timing.CurTime;
         _ghostStates.Remove(args.PlayerSession);
+    }
+
+    private void OnCharacterProfileSaved(CharacterProfileSavedEventArgs args)
+    {
+        if (!IsLobbySession(args.Session) ||
+            _joinQueue.IsQueued(args.Session.UserId))
+            return;
+
+        _lobbySince[args.Session] = _timing.CurTime;
+        _ghostStates.Remove(args.Session);
     }
 
     private static bool IsLobbySession(ICommonSession session)
