@@ -14,9 +14,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformBartender
+  equipment:
+    jumpsuit: ClothingUniformBartender
 
 - type: loadout
   id: BartenderSkirtPatron
@@ -24,9 +23,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformBartenderSkirt
+  equipment:
+    jumpsuit: ClothingUniformBartenderSkirt
 
 - type: loadout
   id: CEBlackPatron
@@ -34,9 +32,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformCEBlack
+  equipment:
+    jumpsuit: ClothingUniformCEBlack
 
 - type: loadout
   id: CEBlackSkirtPatron
@@ -44,9 +41,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformCEBlackSkirt
+  equipment:
+    jumpsuit: ClothingUniformCEBlackSkirt
 
 - type: loadout
   id: CEWhiteSkirtPatron
@@ -54,9 +50,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformCEWhiteSkirt
+  equipment:
+    jumpsuit: ClothingUniformCEWhiteSkirt
 
 - type: loadout
   id: CEWhitePatron
@@ -64,9 +59,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformCEWhite
+  equipment:
+    jumpsuit: ClothingUniformCEWhite
 
 - type: loadout
   id: ClownPinkPatron
@@ -74,9 +68,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformPinkClown
+  equipment:
+    jumpsuit: ClothingUniformPinkClown
 
 - type: loadout
   id: CMOSweaterSkirtPatron
@@ -84,9 +77,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformCMOSweaterSkirt
+  equipment:
+    jumpsuit: ClothingUniformCMOSweaterSkirt
 
 - type: loadout
   id: CMOSweaterPatron
@@ -94,9 +86,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformCMOSweater
+  equipment:
+    jumpsuit: ClothingUniformCMOSweater
 
 - type: loadout
   id: HOSShortDressPatron
@@ -104,9 +95,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformHOSShortDress
+  equipment:
+    jumpsuit: ClothingUniformHOSShortDress
 
 - type: loadout
   id: NunDressPatron
@@ -114,9 +104,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformNun
+  equipment:
+    jumpsuit: ClothingUniformNun
 
 - type: loadout
   id: SleevelesQMBlackSkirtPatron
@@ -124,9 +113,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformQMBlackSkirtSleeveles
+  equipment:
+    jumpsuit: ClothingUniformQMBlackSkirtSleeveles
 
 - type: loadout
   id: SleevelesQMBlackPatron
@@ -134,9 +122,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformQMBlackSleeveles
+  equipment:
+    jumpsuit: ClothingUniformQMBlackSleeveles
 
 - type: loadout
   id: SleevelesQMSkirtPatron
@@ -144,9 +131,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformQMSkirtSleeveles
+  equipment:
+    jumpsuit: ClothingUniformQMSkirtSleeveles
 
 - type: loadout
   id: SleevelesQMPatron
@@ -154,9 +140,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    innerclothing:
-    - ClothingUniformQMSleeveles
+  equipment:
+    jumpsuit: ClothingUniformQMSleeveles
 
 - type: loadout
   id: QMGlovesPatron
@@ -164,9 +149,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    hands:
-    - ClothingHandsQMLongGloves
+  equipment:
+    gloves: ClothingHandsQMLongGloves
 
 - type: loadout
   id: QMShoesPatron
@@ -174,9 +158,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    shoes:
-    - ClothingShoesQMBoots
+  equipment:
+    shoes: ClothingShoesQMBoots
 
 - type: loadout
   id: OldFashionesDoctorShoesPatron
@@ -184,9 +167,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    shoes:
-    - ClothingShoesOldFashionedMedical
+  equipment:
+    shoes: ClothingShoesOldFashionedMedical
 
 - type: loadout
   id: CEBlackBeretPatron
@@ -194,9 +176,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    head:
-    - ClothingHatCEBlackBeret
+  equipment:
+    head: ClothingHatCEBlackBeret
 
 - type: loadout
   id: ClownPinkHatPatron
@@ -204,9 +185,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    head:
-    - ClothingHatClownPink
+  equipment:
+    head: ClothingHatClownPink
 
 - type: loadout
   id: CMOHatPatron
@@ -214,9 +194,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    head:
-    - ClothingHatCMO
+  equipment:
+    head: ClothingHatCMO
 
 - type: loadout
   id: HOSCapPatron
@@ -224,9 +203,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    head:
-    - ClothingHatHOSCap
+  equipment:
+    head: ClothingHatHOSCap
 
 - type: loadout
   id: QMBlackBeretPatron
@@ -234,9 +212,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    head:
-    - ClothingHatQMBlackBeret
+  equipment:
+    head: ClothingHatQMBlackBeret
 
 - type: loadout
   id: SanitarHatPatron
@@ -244,9 +221,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    head:
-    - ClothingHatSanitar
+  equipment:
+    head: ClothingHatSanitar
 
 - type: loadout
   id: LeatherCoatPatron
@@ -254,9 +230,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    outerclothing:
-    - ClothingOuterArmorHoSLeather
+  equipment:
+    outerClothing: ClothingOuterArmorHoSLeather
 
 - type: loadout
   id: HOSLongVestPatron
@@ -264,9 +239,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    outerclothing:
-    - ClothingOuterHOSLongVest
+  equipment:
+    outerClothing: ClothingOuterHOSLongVest
 
 - type: loadout
   id: EeayLabCoatPatron
@@ -274,9 +248,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    outerclothing:
-    - ClothingOuterCoatLabEasy
+  equipment:
+    outerClothing: ClothingOuterCoatLabEasy
 
 - type: loadout
   id: LabCoatBeltsPatron
@@ -284,9 +257,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    outerclothing:
-    - ClothingOuterCoatLabBelts
+  equipment:
+    outerClothing: ClothingOuterCoatLabBelts
 
 - type: loadout
   id: LabCoatBlackPatron
@@ -294,9 +266,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    outerclothing:
-    - ClothingOuterCoatLabBlack
+  equipment:
+    outerClothing: ClothingOuterCoatLabBlack
 
 - type: loadout
   id: LivseyCoatPatron
@@ -304,9 +275,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    outerclothing:
-    - ClothingOuterCoatLabEnlightenment
+  equipment:
+    outerClothing: ClothingOuterCoatLabEnlightenment
 
 - type: loadout
   id: ApostolCoatPatron
@@ -314,9 +284,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    outerclothing:
-    - ClothingOuterApostolCoat
+  equipment:
+    outerClothing: ClothingOuterApostolCoat
 
 - type: loadout
   id: CEBlackCloakPatron
@@ -324,9 +293,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    neck:
-    - ClothingCloakCEBlack
+  equipment:
+    neck: ClothingCloakCEBlack
 
 - type: loadout
   id: CETricolorCloakPatron
@@ -334,9 +302,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    neck:
-    - ClothingCloakCETricolor
+  equipment:
+    neck: ClothingCloakCETricolor
 
 - type: loadout
   id: CMOHonorableCloakPatron
@@ -344,9 +311,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    neck:
-    - ClothingCloakCMOHonorable
+  equipment:
+    neck: ClothingCloakCMOHonorable
 
 - type: loadout
   id: HOSBlackCloakPatron
@@ -354,9 +320,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    neck:
-    - ClothingCloakHOSBlack
+  equipment:
+    neck: ClothingCloakHOSBlack
 
 - type: loadout
   id: HOSRedCloakPatron
@@ -364,9 +329,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    neck:
-    - ClothingCloakHOSRed
+  equipment:
+    neck: ClothingCloakHOSRed
 
 - type: loadout
   id: QMBlackCloakPatron
@@ -374,9 +338,8 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    neck:
-    - ClothingCloakQMBlack
+  equipment:
+    neck: ClothingCloakQMBlack
 
 - type: loadout
   id: QMWhiteCloakPatron
@@ -384,6 +347,5 @@
   - !type:SponsorRequirementLoadoutEffect
     tiers:
     - Tier2
-  storage:
-    neck:
-    - ClothingCloakQMWhite
+  equipment:
+    neck: ClothingCloakQMWhite
